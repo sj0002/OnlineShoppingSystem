@@ -1,7 +1,5 @@
 # Online Shopping System 🛒
 
-# Online Shopping System 🛒
-
 A full-stack e-commerce platform developed as a software engineering project for General Sir John Kotelawala Defence University. This system features robust role-based access control, allowing customers to seamlessly browse and purchase items, sellers to efficiently manage their inventory, and administrators to securely oversee the entire platform.
 
 ## 👥 Team Members
