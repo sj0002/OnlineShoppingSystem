@@ -1,27 +1,40 @@
-# Online Shopping System
+# Online Shopping System 🛒
 
-## Project Overview
+A full-stack e-commerce platform developed as a 3rd-year, 1st-semester software engineering project for General Sir John Kotelawala Defence University. This system features robust role-based access control, allowing customers to seamlessly browse and purchase items, sellers to efficiently manage their inventory, and administrators to securely oversee the entire platform.
 
-This project is developed as part of the Rapid Application Development (RAD) module.
+## 👥 Team Members
+*   **Ashan** – Product Owner
+*   **Ishara** – Scrum Master
+*   **Binath** – UI/UX Designer
+*   **Chathura** – Software Developer
 
-The system allows customers to browse products, manage shopping carts, and place orders through an online platform.
+---
 
-## Team Members
+## 🚀 Core Features
+*   **Customer Portal:** Browse products, search and filter by category/price, manage a shopping cart, and complete the checkout process.
+*   **Seller Dashboard:** Dedicated workspace to add new product listings, update stock quantities, and manage order statuses (Pending, Shipped, Delivered).
+*   **Admin Dashboard:** High-level access to approve new seller accounts, manage system categories, and view overarching sales reports.
 
-| Name | Role |
-|------|------|
-| Ashan | Product Owner |
-| Ishara | Scrum Master |
-| Binath | UI/UX Designer |
-| Chathura | Software Developer |
+---
 
-## Technology Stack
+## 💻 Tech Stack
+*   **Frontend:** React.js, React Router
+*   **Backend:** Node.js, Express.js
+*   **Database:** MySQL
+*   **Tools:** Git, GitHub Projects (Agile/Scrum Management)
 
-- Frontend: React
-- Backend: Node.js + Express.js
-- Database: MongoDB
-- Version Control: Git & GitHub
+---
 
-## Project Status
+## ⚙️ Local Setup & Installation
 
-Sprint 1 - In Progress
+### 1. Database Configuration
+1. Open MySQL Workbench (or your preferred MySQL client).
+2. Execute the `database_setup.sql` script located in the `/backend` folder to generate the required tables.
+3. Update the database connection credentials in the `/backend/.env` file to match your local MySQL setup.
+
+### 2. Running the Backend Server
+Open a terminal, navigate to the root directory, and run the following commands:
+```bash
+cd backend
+npm install
+npm run dev
