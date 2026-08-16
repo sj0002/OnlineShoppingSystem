@@ -1,6 +1,8 @@
 # Online Shopping System 🛒
 
-A full-stack e-commerce platform developed as a 3rd-year, 1st-semester software engineering project for General Sir John Kotelawala Defence University. This system features robust role-based access control, allowing customers to seamlessly browse and purchase items, sellers to efficiently manage their inventory, and administrators to securely oversee the entire platform.
+# Online Shopping System 🛒
+
+A full-stack e-commerce platform developed as a software engineering project for General Sir John Kotelawala Defence University. This system features robust role-based access control, allowing customers to seamlessly browse and purchase items, sellers to efficiently manage their inventory, and administrators to securely oversee the entire platform.
 
 ## 👥 Team Members
 *   **Ashan** – Product Owner
