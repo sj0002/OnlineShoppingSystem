@@ -1,70 +1,108 @@
-# Getting Started with Create React App
+# Online Shopping System 🛒
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A full-stack e-commerce platform developed to demonstrate modern software engineering and Agile principles. This system features robust role-based access control, allowing customers to seamlessly browse and purchase items, sellers to efficiently manage their inventory, and administrators to securely oversee the entire platform.
 
-## Available Scripts
+## 👥 Team Members
+*   **Ashan** – Product Owner
+*   **Ishara** – Scrum Master
+*   **Binath** – UI/UX Designer
+*   **Chathura** – Software Developer
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 🏗️ System Architecture & Use Cases
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```mermaid
+flowchart LR
+    %% Actors
+    C[Customer]
+    S[Seller]
+    A[Admin]
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+    %% System Boundary
+    subgraph "Online Shopping System"
+        direction TB
+        L(Login / Register)
+        BP(Browse Products)
+        SF(Search / Filter)
+        MC(Manage Cart)
+        CO(Checkout / Place Order)
+        MP(Manage Inventory)
+        SO(View Received Orders)
+        UO(Update Order Status)
+        MU(Manage Users / Approve Sellers)
+        MCat(Manage Categories)
+        GR(Generate System Reports)
+    end
 
-### `npm test`
+    %% Customer Interactions
+    C --- L
+    C --- BP
+    C --- SF
+    C --- MC
+    C --- CO
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+    %% Seller Interactions
+    S --- L
+    S --- MP
+    S --- SO
+    S --- UO
 
-### `npm run build`
+    %% Admin Interactions
+    A --- L
+    A --- MU
+    A --- MCat
+    A --- GR
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+    %% Styling
+    classDef actor fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef usecase fill:#e1f5fe,stroke:#0277bd,stroke-width:2px,rx:15,ry:15;
+    class C,S,A actor;
+    class L,BP,SF,MC,CO,MP,SO,UO,MU,MCat,GR usecase;
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🚀 Core Features
+*   **Customer Portal:** Browse products, search and filter by category/price, manage a shopping cart, and complete the checkout process.
+*   **Seller Dashboard:** Dedicated workspace to add new product listings, update stock quantities, and manage order statuses (Pending, Shipped, Delivered).
+*   **Admin Dashboard:** High-level access to approve new seller accounts, manage system categories, and view overarching sales reports.
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 💻 Tech Stack
+*   **Frontend:** React.js, React Router
+*   **Backend:** Node.js, Express.js
+*   **Database:** MySQL
+*   **Tools:** Git, GitHub Projects (Agile/Scrum Management)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## ⚙️ Local Setup & Installation
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### 1. Database Configuration
+1. Open MySQL Workbench.
+2. Execute the `database_setup.sql` script located in the `/backend` folder to generate the required tables.
+3. Update the database connection credentials in the `/backend/.env` file.
 
-## Learn More
+### 2. Running the Backend Server
+```bash
+cd backend
+npm install
+npm run dev
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 3. Running the Frontend Application
+```bash
+cd frontend
+npm install
+npm start
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
+## 🔐 Test Credentials
+To evaluate the role-based dashboards without creating new accounts, please use the following default credentials:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+*   **Administrator:** `admin@store.com` | `adminpassword123`
+*   **Seller:** `seller@store.com` | `sellerpassword123`
