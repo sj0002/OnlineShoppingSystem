@@ -9,6 +9,9 @@ const jwt = require('jsonwebtoken');
 const registerUser = async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
+        console.log('REGISTER EMAIL:', email);
+       
+        
 
         // Check required fields
         if (!name || !email || !password) {
@@ -26,14 +29,16 @@ const registerUser = async (req, res) => {
             });
         }
 
-        // Create new user
-        const user = await User.create({
-            name,
-            email,
-            password,
-            role: role || 'Customer'
-        });
+       const user = await User.create({
+    name,
+    email,
+    password,
+    role: role || 'Customer'
+});
 
+console.log('REGISTERED EMAIL:', user.email);
+console.log('PASSWORD HASHED:', user.password.startsWith('$2'));
+console.log('PASSWORD HASH:', user.password);
         // Registration successful
         res.status(201).json({
             message: 'User registered successfully',
@@ -83,6 +88,11 @@ const loginUser = async (req, res) => {
             password,
             user.password
         );
+
+        console.log('LOGIN EMAIL:', email);
+console.log('USER FOUND:', !!user);
+console.log('PASSWORD IS HASHED:', user.password.startsWith('$2'));
+console.log('PASSWORD MATCH:', isPasswordCorrect);
 
         if (!isPasswordCorrect) {
             return res.status(401).json({
