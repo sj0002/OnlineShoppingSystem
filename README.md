@@ -41,6 +41,12 @@ npm run dev
 
 
 ## UI Designs
+
 You can view the Figma UI designs for this project here: 
 [Click here to view Figma Design]
+
 https://www.figma.com/design/gqoyRUmbwx3nAqeBnZOKUC/Untitled?node-id=4-2&t=EU7WOrWWCLwcJ7OA-1
+
+You can view the Figma UI designs for this project here: 
+[Click here to view Figma Design]
+https://www.figma.com/design/gqoyRUmbwx3nAqeBnZOKUC/Untitled?node-id=9-3&t=wEhL24Z6W2PVPhL4-1
