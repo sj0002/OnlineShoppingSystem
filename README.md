@@ -38,3 +38,9 @@ Open a terminal, navigate to the root directory, and run the following commands:
 cd backend
 npm install
 npm run dev
+
+
+## UI Designs
+You can view the Figma UI designs for this project here: 
+[Click here to view Figma Design]
+https://www.figma.com/design/gqoyRUmbwx3nAqeBnZOKUC/Untitled?node-id=4-2&t=EU7WOrWWCLwcJ7OA-1
