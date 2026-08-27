@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Auth from './pages/Auth';
+
+// import Auth from './pages/Auth'; // මේ පරණ එක මම අයින් කළා
+import Login from './components/Login'; // ඔයා හදපු අලුත් Login component එක මම මෙතනින් import කළා
+
 import Navbar from './Navbar';
 import Home from './pages/Home';
 import SearchResults from './pages/SearchResults';
@@ -21,7 +24,10 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<SearchResults />} />
-          <Route path="/login" element={<Auth />} />
+          
+          {/* පහත පේළිය අලුත් Login එකට මම වෙනස් කළා */}
+          <Route path="/login" element={<Login />} /> 
+          
           <Route path="/seller" element={<SellerDashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/cart" element={<Cart />} />
