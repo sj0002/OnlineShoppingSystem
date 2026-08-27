@@ -1,0 +1,46 @@
+@startuml
+!theme plain
+skinparam rectangle {
+    BackgroundColor LightBlue
+}
+skinparam database {
+    BackgroundColor LightGreen
+}
+
+' External Entities
+rectangle "Customer" as Cust
+rectangle "Seller" as Sell
+rectangle "Administrator" as Admin
+
+' Processes (Level 0)
+usecase "1.0\nAuthentication\n& Authorization" as P1
+usecase "2.0\nProduct\nManagement" as P2
+usecase "3.0\nOrder & Cart\nProcessing" as P3
+
+' Data Stores
+database "Users Collection" as D1
+database "Products Collection" as D2
+database "Orders Collection" as D3
+
+' Data Flows - Auth
+Cust --> P1 : Registration Data / Login Credentials
+P1 --> D1 : Store/Verify User Data
+D1 --> P1 : User Details
+P1 --> Cust : JWT Token / Profile Data
+
+' Data Flows - Products
+Sell --> P2 : Add/Update Product Details
+Admin --> P2 : Moderate Products
+P2 --> D2 : Save Product Info
+D2 --> P2 : Product Catalog
+P2 --> Cust : Display Products / Search Results
+
+' Data Flows - Orders
+Cust --> P3 : Cart Items / Checkout Info
+P3 --> D3 : Save Order
+D3 --> P3 : Order Status
+P3 --> Cust : Order Confirmation
+P3 --> Sell : Notify New Order
+
+@enduml
+

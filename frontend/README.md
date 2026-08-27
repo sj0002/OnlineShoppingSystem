@@ -106,3 +106,4 @@ To evaluate the role-based dashboards without creating new accounts, please use 
 
 *   **Administrator:** `admin@store.com` | `adminpassword123`
 *   **Seller:** `seller@store.com` | `sellerpassword123`
+
