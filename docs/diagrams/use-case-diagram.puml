@@ -1,0 +1,86 @@
+@startuml
+
+left to right direction
+
+actor Customer
+actor "Seller / Store Manager" as Seller
+actor "System Administrator" as Admin
+
+rectangle "Online Shopping System" {
+
+    usecase "Register" as UC1
+    usecase "Login" as UC2
+    usecase "Manage Profile" as UC3
+
+    usecase "Browse Products" as UC4
+    usecase "Search Products" as UC5
+    usecase "Filter Products" as UC6
+    usecase "View Product Details" as UC7
+
+    usecase "Add Product to Cart" as UC8
+    usecase "Manage Shopping Cart" as UC9
+    usecase "Place Order" as UC10
+    usecase "View Order History" as UC11
+    usecase "View Order Status" as UC12
+
+    usecase "Make Payment" as UC13
+    usecase "Cash on Delivery" as UC14
+    usecase "Card / Bank Transfer" as UC15
+
+    usecase "Manage Products" as UC16
+    usecase "Manage Stock" as UC17
+    usecase "Update Order Status" as UC18
+    usecase "View Sales Reports" as UC19
+
+    usecase "Manage Users" as UC20
+    usecase "Manage Sellers" as UC21
+    usecase "Manage Categories" as UC22
+    usecase "Approve Seller Registration" as UC23
+    usecase "Monitor Orders" as UC24
+    usecase "Monitor System Activity" as UC25
+    usecase "Generate System Reports" as UC26
+
+    usecase "Receive Order Confirmation" as UC27
+    usecase "Receive Order Status Notification" as UC28
+}
+
+Customer --> UC1
+Customer --> UC2
+Customer --> UC3
+Customer --> UC4
+Customer --> UC5
+Customer --> UC6
+Customer --> UC7
+Customer --> UC8
+Customer --> UC9
+Customer --> UC10
+Customer --> UC11
+Customer --> UC12
+Customer --> UC13
+Customer --> UC27
+Customer --> UC28
+
+UC13 .> UC14 : <<extend>>
+UC13 .> UC15 : <<extend>>
+
+Seller --> UC1
+Seller --> UC2
+Seller --> UC3
+Seller --> UC16
+Seller --> UC17
+Seller --> UC18
+Seller --> UC19
+
+Admin --> UC2
+Admin --> UC20
+Admin --> UC21
+Admin --> UC22
+Admin --> UC23
+Admin --> UC24
+Admin --> UC25
+Admin --> UC26
+
+UC10 .> UC27 : <<include>>
+UC18 .> UC28 : <<include>>
+
+@enduml
