@@ -1,7 +1,29 @@
-import React from 'react';
-import ProductCard from '../ProductCard';
-
+import React, { useEffect, useState } from 'react';
+import ProductCard from './ProductCard';
 function Home() {
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        fetch('http://localhost:5000/api/products')
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch products');
+                }
+                return response.json();
+            })
+            .then((data) => {
+                setProducts(data);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error('Error fetching products:', error);
+                setError('Unable to load products');
+                setLoading(false);
+            });
+    }, []);
+
     return (
         <main style={styles.mainContainer}>
 
@@ -30,26 +52,23 @@ function Home() {
                 <h3 style={styles.sectionTitle}>New Arrivals</h3>
                 <div style={styles.productGrid}>
                     {/* We are passing dummy data into the ProductCard components */}
-                    <ProductCard
-                        name="Heavy Textured T-Shirt"
-                        price="3500"
-                        description="Neutral colors, heavy cotton."
-                    />
-                    <ProductCard
-                        name="Hybrid Duffel Bag"
-                        price="8500"
-                        description="All-black, water-resistant travel gear."
-                    />
-                    <ProductCard
-                        name="Aluminum Laptop Stand"
-                        price="4200"
-                        description="Adjustable, functional desktop accessory."
-                    />
-                    <ProductCard
-                        name="Speed Gaming Mousepad"
-                        price="2800"
-                        description="Large rubber base, low friction."
-                    />
+                    {loading && <p>Loading products...</p>}
+
+{error && <p>{error}</p>}
+
+{!loading && !error && products.length === 0 && (
+    <p>No products available.</p>
+)}
+
+{!loading && !error && products.map((product) => (
+    <ProductCard
+        key={product._id}
+        name={product.name}
+        price={product.price}
+        description={product.description}
+        imageUrl={product.imageUrl}
+    />
+))}
                 </div>
             </div>
 

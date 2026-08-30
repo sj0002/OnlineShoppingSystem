@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const User = require('../models/User');
 
 // ============================
 // GET ALL PRODUCTS

@@ -1,25 +1,31 @@
-require('dotenv').config(); // Loads the variables from your .env file
-const express = require('express');
-const connectDB = require('./config/db'); // Imports your DB connection function
+require('dotenv').config();
 
-// Initialize the Express application
+const express = require('express');
+const cors = require('cors');
+const connectDB = require('./config/db');
+const productRoutes = require('./routes/productRoutes');
+
+// Initialize Express
 const app = express();
 
-// Execute the database connection
-connectDB();
-
-// Middleware to parse incoming JSON data
+// Middleware
+app.use(cors());
 app.use(express.json());
 
-// A simple test route to verify the server is working
+// Product routes
+app.use('/api/products', productRoutes);
+
+// Test route
 app.get('/', (req, res) => {
     res.send('Online Shopping System API is running...');
 });
 
-// Define the port (uses the one in .env, or defaults to 5000)
+// Connect to MongoDB
+connectDB();
+
+// Start server
 const PORT = process.env.PORT || 5000;
 
-// Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
