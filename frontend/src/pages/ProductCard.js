@@ -1,6 +1,58 @@
 import React from 'react';
 
-function ProductCard({ name, price, description, imageUrl }) {
+function ProductCard({
+    id,
+    name,
+    price,
+    description,
+    category,
+    imageUrl
+}) {
+
+    const addToCart = () => {
+        const existingCart =
+            JSON.parse(localStorage.getItem('cart')) || [];
+
+        const existingItem = existingCart.find(
+            (item) => item.id === id
+        );
+
+        let updatedCart;
+
+        if (existingItem) {
+            updatedCart = existingCart.map((item) =>
+                item.id === id
+                    ? {
+                        ...item,
+                        quantity: item.quantity + 1
+                    }
+                    : item
+            );
+        } else {
+            updatedCart = [
+                ...existingCart,
+                {
+                    id,
+                    name,
+                    price,
+                    description,
+                    category,
+                    imageUrl,
+                    quantity: 1
+                }
+            ];
+        }
+
+        localStorage.setItem(
+            'cart',
+            JSON.stringify(updatedCart)
+        );
+
+        window.dispatchEvent(new Event('cartUpdated'));
+
+        alert(`${name} added to cart!`);
+    };
+
     return (
         <div style={styles.card}>
 
@@ -34,7 +86,10 @@ function ProductCard({ name, price, description, imageUrl }) {
                     Rs. {price}
                 </p>
 
-                <button style={styles.button}>
+                <button
+                    style={styles.button}
+                    onClick={addToCart}
+                >
                     Add to Cart
                 </button>
 
