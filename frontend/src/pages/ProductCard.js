@@ -1,10 +1,18 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function ProductCard({ name, price, description, imageUrl }) {
+function ProductCard({ id, name, price, description, imageUrl }) {
+    const navigate = useNavigate();
+
+    const handleViewDetails = () => {
+        navigate(`/products/${id}`);
+    };
+
     return (
-        <div style={styles.card}>
-
-            {/* Product Image */}
+        <div
+            style={styles.card}
+            onClick={handleViewDetails}
+        >
             <div style={styles.imageContainer}>
                 {imageUrl ? (
                     <img
@@ -19,7 +27,6 @@ function ProductCard({ name, price, description, imageUrl }) {
                 )}
             </div>
 
-            {/* Product Information */}
             <div style={styles.info}>
 
                 <h3 style={styles.title}>
@@ -34,7 +41,12 @@ function ProductCard({ name, price, description, imageUrl }) {
                     Rs. {price}
                 </p>
 
-                <button style={styles.button}>
+                <button
+                    style={styles.button}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                    }}
+                >
                     Add to Cart
                 </button>
 
@@ -43,8 +55,8 @@ function ProductCard({ name, price, description, imageUrl }) {
     );
 }
 
-const styles = {
 
+const styles = {
     card: {
         backgroundColor: '#111111',
         border: '1px solid #222',
@@ -52,6 +64,7 @@ const styles = {
         width: '270px',
         overflow: 'hidden',
         transition: 'transform 0.2s',
+        cursor: 'pointer',
     },
 
     imageContainer: {
@@ -112,7 +125,7 @@ const styles = {
         width: '100%',
         fontWeight: 'bold',
         textTransform: 'uppercase',
-    }
+    },
 };
 
 export default ProductCard;
