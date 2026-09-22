@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function ProductCard({
     id,
@@ -8,8 +9,15 @@ function ProductCard({
     category,
     imageUrl
 }) {
+    const navigate = useNavigate();
 
-    const addToCart = () => {
+    const handleViewDetails = () => {
+        navigate(`/products/${id}`);
+    };
+
+    const addToCart = (event) => {
+        event.stopPropagation();
+
         const existingCart =
             JSON.parse(localStorage.getItem('cart')) || [];
 
@@ -54,9 +62,10 @@ function ProductCard({
     };
 
     return (
-        <div style={styles.card}>
-
-            {/* Product Image */}
+        <div
+            style={styles.card}
+            onClick={handleViewDetails}
+        >
             <div style={styles.imageContainer}>
                 {imageUrl ? (
                     <img
@@ -71,7 +80,6 @@ function ProductCard({
                 )}
             </div>
 
-            {/* Product Information */}
             <div style={styles.info}>
 
                 <h3 style={styles.title}>
@@ -99,7 +107,6 @@ function ProductCard({
 }
 
 const styles = {
-
     card: {
         backgroundColor: '#111111',
         border: '1px solid #222',
@@ -107,6 +114,7 @@ const styles = {
         width: '270px',
         overflow: 'hidden',
         transition: 'transform 0.2s',
+        cursor: 'pointer',
     },
 
     imageContainer: {
@@ -167,7 +175,7 @@ const styles = {
         width: '100%',
         fontWeight: 'bold',
         textTransform: 'uppercase',
-    }
+    },
 };
 
 export default ProductCard;

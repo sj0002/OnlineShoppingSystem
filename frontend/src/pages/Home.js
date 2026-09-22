@@ -7,201 +7,178 @@ function Home() {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/products')
-            .then((response) => {
+        const fetchProducts = async () => {
+            try {
+                const response = await fetch(
+                    'http://localhost:5000/api/products'
+                );
+
                 if (!response.ok) {
                     throw new Error('Failed to fetch products');
                 }
-                return response.json();
-            })
-            .then((data) => {
+
+                const data = await response.json();
                 setProducts(data);
-                setLoading(false);
-            })
-            .catch((error) => {
+
+            } catch (error) {
                 console.error('Error fetching products:', error);
                 setError('Unable to load products');
+            } finally {
                 setLoading(false);
-            });
+            }
+        };
+
+        fetchProducts();
     }, []);
 
     return (
-        <main style={styles.mainContainer}>
+        <div style={styles.page}>
 
-            {/* 1. Hero Banner Section */}
-            <div style={styles.heroBanner}>
-                <div style={styles.heroContent}>
-                    <h1 style={styles.heroTitle}>
-                        GEAR UP FOR PERFORMANCE
-                    </h1>
+            <section style={styles.hero}>
+                <h1>Welcome to Online Shopping</h1>
+                <p>
+                    Discover quality products at great prices.
+                </p>
+            </section>
 
-                    <p style={styles.heroSub}>
-                        Discover the new collection of heavy-duty apparel
-                        and functional accessories.
-                    </p>
+            <section style={styles.section}>
 
-                    <button style={styles.heroBtn}>
-                        SHOP NOW
-                    </button>
-                </div>
-            </div>
-
-            {/* 2. Quick Category Row */}
-            <div style={styles.categorySection}>
-                <h3 style={styles.sectionTitle}>
+                <h2 style={styles.sectionTitle}>
                     Shop by Category
-                </h3>
+                </h2>
 
-                <div style={styles.categoryRow}>
+                <div style={styles.categoryGrid}>
+
                     <div style={styles.categoryCard}>
-                        👕 Apparel
+                        <span>👕</span>
+                        <h3>Apparel</h3>
                     </div>
 
                     <div style={styles.categoryCard}>
-                        🎒 Travel & Bags
+                        <span>👜</span>
+                        <h3>Travel & Bags</h3>
                     </div>
 
                     <div style={styles.categoryCard}>
-                        💻 Tech Accessories
+                        <span>💻</span>
+                        <h3>Tech Accessories</h3>
                     </div>
 
                     <div style={styles.categoryCard}>
-                        👟 Footwear
+                        <span>👟</span>
+                        <h3>Footwear</h3>
                     </div>
+
                 </div>
-            </div>
 
-            {/* 3. Main Product Grid */}
-            <div style={styles.productSection}>
-                <h3 style={styles.sectionTitle}>
+            </section>
+
+            <section style={styles.section}>
+
+                <h2 style={styles.sectionTitle}>
                     New Arrivals
-                </h3>
+                </h2>
 
-                <div style={styles.productGrid}>
+                {loading && (
+                    <p style={styles.message}>
+                        Loading products...
+                    </p>
+                )}
 
-                    {loading && (
-                        <p>Loading products...</p>
-                    )}
+                {error && (
+                    <p style={styles.error}>
+                        {error}
+                    </p>
+                )}
 
-                    {error && (
-                        <p>{error}</p>
-                    )}
+                {!loading && !error && products.length === 0 && (
+                    <p style={styles.message}>
+                        No products available.
+                    </p>
+                )}
 
-                    {!loading && !error && products.length === 0 && (
-                        <p>No products available.</p>
-                    )}
+                {!loading && !error && products.length > 0 && (
+                    <div style={styles.productGrid}>
 
-                    {!loading && !error && products.map((product) => (
-                        <ProductCard
-                            key={product._id}
-                            id={product._id}
-                            name={product.name}
-                            price={product.price}
-                            description={product.description}
-                            category={product.category}
-                            imageUrl={product.imageUrl}
-                        />
-                    ))}
+                        {products.map((product) => (
+                            <ProductCard
+                                key={product._id}
+                                id={product._id}
+                                name={product.name}
+                                price={product.price}
+                                description={product.description}
+                                category={product.category}
+                                imageUrl={product.imageUrl}
+                            />
+                        ))}
 
-                </div>
-            </div>
+                    </div>
+                )}
 
-        </main>
+            </section>
+
+        </div>
     );
 }
 
 const styles = {
-    mainContainer: {
+    page: {
+        backgroundColor: '#000',
+        color: '#fff',
+        minHeight: '100vh',
+        padding: '0 20px',
+    },
+
+    hero: {
         maxWidth: '1200px',
         margin: '0 auto',
-        padding: '20px',
-        color: '#fff',
+        padding: '60px 0 40px',
     },
 
-    heroBanner: {
-        height: '400px',
-        backgroundColor: '#161616',
-        backgroundImage:
-            'linear-gradient(45deg, #0a0a0a 25%, #161616 25%, #161616 50%, #0a0a0a 50%, #0a0a0a 75%, #161616 75%, #161616 100%)',
-        backgroundSize: '40px 40px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        padding: '0 50px',
-        marginBottom: '40px',
-        borderRadius: '8px',
-        border: '1px solid #333',
-    },
-
-    heroContent: {
-        maxWidth: '500px',
-    },
-
-    heroTitle: {
-        fontSize: '42px',
-        margin: '0 0 15px 0',
-        fontWeight: '900',
-        letterSpacing: '1px',
-    },
-
-    heroSub: {
-        fontSize: '18px',
-        color: '#aaa',
-        marginBottom: '25px',
-        lineHeight: '1.5',
-    },
-
-    heroBtn: {
-        backgroundColor: '#fff',
-        color: '#000',
-        border: 'none',
-        padding: '15px 30px',
-        fontSize: '16px',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        borderRadius: '4px',
-    },
-
-    categorySection: {
-        marginBottom: '40px',
+    section: {
+        maxWidth: '1200px',
+        margin: '0 auto',
+        paddingBottom: '40px',
     },
 
     sectionTitle: {
+        fontSize: '28px',
         borderBottom: '1px solid #333',
-        paddingBottom: '10px',
-        marginBottom: '20px',
-        fontSize: '22px',
+        paddingBottom: '15px',
+        marginBottom: '25px',
     },
 
-    categoryRow: {
-        display: 'flex',
-        gap: '20px',
-        overflowX: 'auto',
+    categoryGrid: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: '25px',
     },
 
     categoryCard: {
-        flex: '1',
-        minWidth: '200px',
         backgroundColor: '#111',
         border: '1px solid #222',
-        padding: '30px 20px',
-        textAlign: 'center',
         borderRadius: '8px',
+        padding: '35px 20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '10px',
         fontSize: '18px',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        transition: 'background-color 0.2s',
-    },
-
-    productSection: {
-        marginBottom: '40px',
     },
 
     productGrid: {
         display: 'flex',
-        gap: '20px',
         flexWrap: 'wrap',
-    }
+        gap: '25px',
+    },
+
+    message: {
+        color: '#aaa',
+    },
+
+    error: {
+        color: '#ff6b6b',
+    },
 };
 
 export default Home;
