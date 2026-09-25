@@ -1,11 +1,45 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../ProductCard';
 
 function SearchResults() {
-    // This hook grabs the '?query=...' from the URL
     const [searchParams] = useSearchParams();
     const query = searchParams.get('query') || '';
+
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        const fetchSearchResults = async () => {
+            setLoading(true);
+            setError('');
+
+            try {
+                // Query එකක් නැත්නම් ඔක්කොම products, තියෙනවා නම් ඒවා filter කරලා
+                const url = query.trim()
+                    ? `http://localhost:5000/api/products/search?q=${encodeURIComponent(query)}`
+                    : `http://localhost:5000/api/products/search`;
+
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error('Failed to search products');
+                }
+
+                const data = await response.json();
+                setProducts(data);
+
+            } catch (error) {
+                console.error('Error searching products:', error);
+                setError('Unable to load search results');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchSearchResults();
+    }, [query]);
 
     return (
         <div style={styles.container}>
@@ -43,22 +77,45 @@ function SearchResults() {
             {/* Main Results Grid */}
             <main style={styles.mainContent}>
                 <h2 style={styles.resultsHeader}>
-                    Search Results for: <span style={styles.highlight}>"{query}"</span>
+                    {query.trim() ? (
+                        <>Search Results for: <span style={styles.highlight}>"{query}"</span></>
+                    ) : (
+                        <>All Products</>
+                    )}
                 </h2>
 
-                <div style={styles.productGrid}>
-                    {/* We will just show one or two products here as a placeholder for the results */}
-                    <ProductCard
-                        name="Hybrid Duffel Bag"
-                        price="8500"
-                        description="All-black, water-resistant travel gear."
-                    />
-                    <ProductCard
-                        name="Aluminum Laptop Stand"
-                        price="4200"
-                        description="Adjustable, functional desktop accessory."
-                    />
-                </div>
+                {/* Loading State */}
+                {loading && (
+                    <p style={styles.message}>Searching products...</p>
+                )}
+
+                {/* Error State */}
+                {error && (
+                    <p style={styles.error}>{error}</p>
+                )}
+
+                {/* No Products Found */}
+                {!loading && !error && products.length === 0 && (
+                    <p style={styles.noResults}>
+                        No products found for "{query}"
+                    </p>
+                )}
+
+                {/* Product Grid */}
+                {!loading && !error && products.length > 0 && (
+                    <div style={styles.productGrid}>
+                        {products.map((product) => (
+                            <ProductCard
+                                key={product._id}
+                                id={product._id}
+                                name={product.name}
+                                price={product.price}
+                                description={product.description}
+                                imageUrl={product.imageUrl}
+                            />
+                        ))}
+                    </div>
+                )}
             </main>
 
         </div>
@@ -145,7 +202,19 @@ const styles = {
         display: 'flex',
         gap: '20px',
         flexWrap: 'wrap',
-    }
+    },
+    message: {
+        color: '#aaa',
+        fontSize: '18px',
+    },
+    error: {
+        color: '#ff6b6b',
+        fontSize: '18px',
+    },
+    noResults: {
+        color: '#aaa',
+        fontSize: '18px',
+    },
 };
 
 export default SearchResults;
