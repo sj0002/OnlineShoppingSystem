@@ -31,7 +31,6 @@ function Home() {
         fetchProducts();
     }, []);
 
-
     return (
         <div style={styles.page}>
 
@@ -41,7 +40,6 @@ function Home() {
                     Discover quality products at great prices.
                 </p>
             </section>
-
 
             <section style={styles.section}>
 
@@ -75,7 +73,6 @@ function Home() {
 
             </section>
 
-
             <section style={styles.section}>
 
                 <h2 style={styles.sectionTitle}>
@@ -94,7 +91,13 @@ function Home() {
                     </p>
                 )}
 
-                {!loading && !error && (
+                {!loading && !error && products.length === 0 && (
+                    <p style={styles.message}>
+                        No products available.
+                    </p>
+                )}
+
+                {!loading && !error && products.length > 0 && (
                     <div style={styles.productGrid}>
 
                         {products.map((product) => (
@@ -104,6 +107,7 @@ function Home() {
                                 name={product.name}
                                 price={product.price}
                                 description={product.description}
+                                category={product.category}
                                 imageUrl={product.imageUrl}
                             />
                         ))}
@@ -117,7 +121,6 @@ function Home() {
     );
 }
 
-
 const styles = {
     page: {
         backgroundColor: '#000',
@@ -130,10 +133,6 @@ const styles = {
         maxWidth: '1200px',
         margin: '0 auto',
         padding: '60px 0 40px',
-    },
-
-    heroTitle: {
-        fontSize: '40px',
     },
 
     section: {

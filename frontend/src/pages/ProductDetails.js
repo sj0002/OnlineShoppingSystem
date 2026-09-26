@@ -40,6 +40,49 @@ function ProductDetails() {
         fetchProduct();
     }, [id]);
 
+    const handleAddToCart = () => {
+        const existingCart =
+            JSON.parse(localStorage.getItem('cart')) || [];
+
+        const existingItem = existingCart.find(
+            (item) => item.id === product._id
+        );
+
+        let updatedCart;
+
+        if (existingItem) {
+            updatedCart = existingCart.map((item) =>
+                item.id === product._id
+                    ? {
+                        ...item,
+                        quantity: item.quantity + 1
+                    }
+                    : item
+            );
+        } else {
+            updatedCart = [
+                ...existingCart,
+                {
+                    id: product._id,
+                    name: product.name,
+                    price: product.price,
+                    description: product.description,
+                    category: product.category,
+                    imageUrl: product.imageUrl,
+                    quantity: 1
+                }
+            ];
+        }
+
+        localStorage.setItem(
+            'cart',
+            JSON.stringify(updatedCart)
+        );
+
+        window.dispatchEvent(new Event('cartUpdated'));
+
+        alert(`${product.name} added to cart!`);
+    };
 
     if (loading) {
         return (
@@ -48,7 +91,6 @@ function ProductDetails() {
             </div>
         );
     }
-
 
     if (error) {
         return (
@@ -64,7 +106,6 @@ function ProductDetails() {
             </div>
         );
     }
-
 
     return (
         <div style={styles.container}>
@@ -91,7 +132,6 @@ function ProductDetails() {
                         </div>
                     )}
                 </div>
-
 
                 <div style={styles.infoSection}>
 
@@ -130,7 +170,10 @@ function ProductDetails() {
                         </div>
                     )}
 
-                    <button style={styles.cartButton}>
+                    <button
+                        style={styles.cartButton}
+                        onClick={handleAddToCart}
+                    >
                         ADD TO CART
                     </button>
 
@@ -141,7 +184,6 @@ function ProductDetails() {
         </div>
     );
 }
-
 
 const styles = {
     container: {

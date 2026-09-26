@@ -1,11 +1,64 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function ProductCard({ id, name, price, description, imageUrl }) {
+function ProductCard({
+    id,
+    name,
+    price,
+    description,
+    category,
+    imageUrl
+}) {
     const navigate = useNavigate();
 
     const handleViewDetails = () => {
         navigate(`/products/${id}`);
+    };
+
+    const addToCart = (event) => {
+        event.stopPropagation();
+
+        const existingCart =
+            JSON.parse(localStorage.getItem('cart')) || [];
+
+        const existingItem = existingCart.find(
+            (item) => item.id === id
+        );
+
+        let updatedCart;
+
+        if (existingItem) {
+            updatedCart = existingCart.map((item) =>
+                item.id === id
+                    ? {
+                        ...item,
+                        quantity: item.quantity + 1
+                    }
+                    : item
+            );
+        } else {
+            updatedCart = [
+                ...existingCart,
+                {
+                    id,
+                    name,
+                    price,
+                    description,
+                    category,
+                    imageUrl,
+                    quantity: 1
+                }
+            ];
+        }
+
+        localStorage.setItem(
+            'cart',
+            JSON.stringify(updatedCart)
+        );
+
+        window.dispatchEvent(new Event('cartUpdated'));
+
+        alert(`${name} added to cart!`);
     };
 
     return (
@@ -43,9 +96,7 @@ function ProductCard({ id, name, price, description, imageUrl }) {
 
                 <button
                     style={styles.button}
-                    onClick={(event) => {
-                        event.stopPropagation();
-                    }}
+                    onClick={addToCart}
                 >
                     Add to Cart
                 </button>
@@ -54,7 +105,6 @@ function ProductCard({ id, name, price, description, imageUrl }) {
         </div>
     );
 }
-
 
 const styles = {
     card: {
