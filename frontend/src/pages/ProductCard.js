@@ -1,14 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function ProductCard({
-    id,
-    name,
-    price,
-    description,
-    category,
-    imageUrl
-}) {
+function ProductCard({ id, name, price, description, category, imageUrl }) {
     const navigate = useNavigate();
 
     const handleViewDetails = () => {
@@ -18,43 +11,25 @@ function ProductCard({
     const addToCart = (event) => {
         event.stopPropagation();
 
-        const existingCart =
-            JSON.parse(localStorage.getItem('cart')) || [];
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-        const existingItem = existingCart.find(
-            (item) => item.id === id
-        );
+        const existingProduct = cart.find(item => item.id === id);
 
-        let updatedCart;
-
-        if (existingItem) {
-            updatedCart = existingCart.map((item) =>
-                item.id === id
-                    ? {
-                        ...item,
-                        quantity: item.quantity + 1
-                    }
-                    : item
-            );
+        if (existingProduct) {
+            existingProduct.quantity += 1;
         } else {
-            updatedCart = [
-                ...existingCart,
-                {
-                    id,
-                    name,
-                    price,
-                    description,
-                    category,
-                    imageUrl,
-                    quantity: 1
-                }
-            ];
+            cart.push({
+                id,
+                name,
+                price,
+                description,
+                category,
+                imageUrl,
+                quantity: 1
+            });
         }
 
-        localStorage.setItem(
-            'cart',
-            JSON.stringify(updatedCart)
-        );
+        localStorage.setItem('cart', JSON.stringify(cart));
 
         window.dispatchEvent(new Event('cartUpdated'));
 
@@ -81,7 +56,6 @@ function ProductCard({
             </div>
 
             <div style={styles.info}>
-
                 <h3 style={styles.title}>
                     {name}
                 </h3>
@@ -100,7 +74,6 @@ function ProductCard({
                 >
                     Add to Cart
                 </button>
-
             </div>
         </div>
     );
