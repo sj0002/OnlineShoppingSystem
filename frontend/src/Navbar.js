@@ -1,8 +1,16 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import categories from './categories';
 
-function Navbar({ searchTerm, setSearchTerm }) {
+function Navbar({
+    searchTerm,
+    setSearchTerm,
+    selectedCategory,
+    setSelectedCategory,
+}) {
     const navigate = useNavigate();
+    const { pathname } = useLocation();
+    const isAuthRoute = pathname === '/login' || pathname === '/register';
 
     const handleSearch = (e) => {
         // Check if the user pressed the 'Enter' key and the search isn't empty
@@ -22,22 +30,32 @@ function Navbar({ searchTerm, setSearchTerm }) {
             </div>
 
             {/* Search & Filter Section */}
-            <div style={styles.searchContainer}>
-                <input
-                    type="text"
-                    placeholder="Search products by name... (Press Enter)"
-                    style={styles.searchInput}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    onKeyDown={handleSearch}
-                />
-                <select style={styles.filterSelect}>
-                    <option value="all">All Categories</option>
-                    <option value="apparel">Apparel</option>
-                    <option value="accessories">Accessories</option>
-                    <option value="tech">Tech Gear</option>
-                </select>
-            </div>
+            {!isAuthRoute && (
+                <div style={styles.searchContainer}>
+                    <input
+                        type="text"
+                        placeholder="Search products by name... (Press Enter)"
+                        style={styles.searchInput}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onKeyDown={handleSearch}
+                    />
+                    <select
+                        style={styles.filterSelect}
+                        value={selectedCategory}
+                        onChange={(e) => {
+                            setSelectedCategory(e.target.value);
+                            navigate('/');
+                        }}
+                    >
+                        {categories.map((category) => (
+                            <option key={category.value} value={category.value}>
+                                {category.label}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            )}
 
             {/* User Actions & Cart */}
             <div style={styles.navActions}>

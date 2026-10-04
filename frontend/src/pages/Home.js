@@ -1,19 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import ProductCard from './ProductCard';
+import categories from '../categories';
 
-function Home() {
+function Home({ selectedCategory, setSelectedCategory }) {
 	const [products, setProducts] = useState([]);
-	const [selectedCategory, setSelectedCategory] = useState('All');
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState('');
-
-	const categories = [
-		{ label: 'All Categories', value: 'All' },
-		{ label: 'Apparel', value: 'Apparel' },
-		{ label: 'Travel & Bags', value: 'Travel & Bags' },
-		{ label: 'Electronics', value: 'Electronics' },
-		{ label: 'Footwear', value: 'Footwear' },
-	];
 
 	useEffect(() => {
 		const fetchProducts = async () => {

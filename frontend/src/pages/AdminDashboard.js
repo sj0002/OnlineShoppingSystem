@@ -1,8 +1,64 @@
 // frontend/src/pages/AdminDashboard.js
 import React, { useState } from 'react';
+import categories from '../categories';
 
 function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('approvals');
+  const [activeTab, setActiveTab] = useState('products');
+  const [productData, setProductData] = useState({
+    name: '',
+    description: '',
+    price: 0,
+    category: 'Apparel',
+    stockQuantity: 0,
+    imageUrl: '',
+    seller: '64f8b5d3a9d123456789abcd',
+  });
+  const [productMessage, setProductMessage] = useState('');
+  const [productError, setProductError] = useState('');
+
+  const handleProductChange = (event) => {
+    const { name, value } = event.target;
+
+    setProductData((currentData) => ({
+      ...currentData,
+      [name]: name === 'price' || name === 'stockQuantity'
+        ? Number(value)
+        : value,
+    }));
+  };
+
+  const handleProductSubmit = async (event) => {
+    event.preventDefault();
+    setProductMessage('');
+    setProductError('');
+
+    try {
+      const response = await fetch('http://localhost:5000/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Unable to create product');
+      }
+
+      setProductMessage('Product added successfully.');
+      setProductData({
+        name: '',
+        description: '',
+        price: 0,
+        category: 'Apparel',
+        stockQuantity: 0,
+        imageUrl: '',
+        seller: '64f8b5d3a9d123456789abcd',
+      });
+    } catch (error) {
+      setProductError(error.message);
+    }
+  };
 
   return (
     <div style={styles.dashboardContainer}>
@@ -29,6 +85,12 @@ function AdminDashboard() {
           >
             📁 Manage Categories
           </button>
+          <button
+            style={activeTab === 'products' ? styles.activeNavItem : styles.navItem}
+            onClick={() => setActiveTab('products')}
+          >
+            🛍️ Add New Product
+          </button>
           <button 
             style={activeTab === 'reports' ? styles.activeNavItem : styles.navItem}
             onClick={() => setActiveTab('reports')}
@@ -46,6 +108,13 @@ function AdminDashboard() {
           <div>
             <div style={styles.headerRow}>
               <h2>Pending Seller Registrations</h2>
+              <button
+                type="button"
+                style={styles.headerAction}
+                onClick={() => setActiveTab('products')}
+              >
+                Add New Product
+              </button>
             </div>
             
             <table style={styles.table}>
@@ -81,6 +150,114 @@ function AdminDashboard() {
                 </tr>
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Add Product Tab */}
+        {activeTab === 'products' && (
+          <div>
+            <h2>Add New Product</h2>
+            <form style={styles.productForm} onSubmit={handleProductSubmit}>
+              <label style={styles.formLabel}>
+                Product Name
+                <input
+                  name="name"
+                  type="text"
+                  value={productData.name}
+                  onChange={handleProductChange}
+                  style={styles.formInput}
+                  required
+                />
+              </label>
+
+              <label style={styles.formLabel}>
+                Description
+                <textarea
+                  name="description"
+                  value={productData.description}
+                  onChange={handleProductChange}
+                  style={styles.formInput}
+                  rows="4"
+                  required
+                />
+              </label>
+
+              <div style={styles.formGrid}>
+                <label style={styles.formLabel}>
+                  Price
+                  <input
+                    name="price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={productData.price}
+                    onChange={handleProductChange}
+                    style={styles.formInput}
+                    required
+                  />
+                </label>
+
+                <label style={styles.formLabel}>
+                  Stock Quantity
+                  <input
+                    name="stockQuantity"
+                    type="number"
+                    min="0"
+                    value={productData.stockQuantity}
+                    onChange={handleProductChange}
+                    style={styles.formInput}
+                    required
+                  />
+                </label>
+              </div>
+
+              <label style={styles.formLabel}>
+                Category
+                <select
+                  name="category"
+                  value={productData.category}
+                  onChange={handleProductChange}
+                  style={styles.formInput}
+                  required
+                >
+                  {categories.slice(1).map((category) => (
+                    <option key={category.value} value={category.value}>
+                      {category.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label style={styles.formLabel}>
+                Image URL
+                <input
+                  name="imageUrl"
+                  type="text"
+                  value={productData.imageUrl}
+                  onChange={handleProductChange}
+                  style={styles.formInput}
+                />
+              </label>
+
+              <label style={styles.formLabel}>
+                Seller ID
+                <input
+                  name="seller"
+                  type="text"
+                  value={productData.seller}
+                  onChange={handleProductChange}
+                  style={styles.formInput}
+                  required
+                />
+              </label>
+
+              <button type="submit" style={styles.submitBtn}>
+                Add Product
+              </button>
+
+              {productMessage && <p style={styles.successMessage}>{productMessage}</p>}
+              {productError && <p style={styles.errorMessage}>{productError}</p>}
+            </form>
           </div>
         )}
 
@@ -175,6 +352,16 @@ const styles = {
     alignItems: 'center',
     marginBottom: '30px',
   },
+  headerAction: {
+    backgroundColor: '#3498db',
+    border: 'none',
+    borderRadius: '4px',
+    color: '#fff',
+    cursor: 'pointer',
+    fontSize: '15px',
+    fontWeight: 'bold',
+    padding: '12px 18px',
+  },
   table: {
     width: '100%',
     borderCollapse: 'collapse',
@@ -212,6 +399,58 @@ const styles = {
     padding: '8px 12px',
     borderRadius: '4px',
     cursor: 'pointer',
+  },
+  productForm: {
+    maxWidth: '720px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '18px',
+    marginTop: '25px',
+    padding: '25px',
+    backgroundColor: '#111',
+    border: '1px solid #333',
+    borderRadius: '8px',
+  },
+  formGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+    gap: '18px',
+  },
+  formLabel: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    color: '#bbb',
+    fontSize: '14px',
+  },
+  formInput: {
+    boxSizing: 'border-box',
+    width: '100%',
+    padding: '11px 12px',
+    backgroundColor: '#222',
+    border: '1px solid #444',
+    borderRadius: '4px',
+    color: '#fff',
+    fontSize: '15px',
+  },
+  submitBtn: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#3498db',
+    border: 'none',
+    borderRadius: '4px',
+    color: '#fff',
+    cursor: 'pointer',
+    fontSize: '15px',
+    fontWeight: 'bold',
+    padding: '12px 20px',
+  },
+  successMessage: {
+    color: '#6bff6b',
+    margin: '0',
+  },
+  errorMessage: {
+    color: '#ff6b6b',
+    margin: '0',
   },
   statsGrid: {
     display: 'flex',

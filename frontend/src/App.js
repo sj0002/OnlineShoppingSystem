@@ -11,6 +11,7 @@ import ProductDetails from './pages/ProductDetails';
 
 function App() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
   return (
     <Router>
@@ -20,12 +21,22 @@ function App() {
         <Navbar
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
         />
 
         {/* The Routes determine which page content to load below the Navbar */}
         <Routes>
 
-          <Route path="/" element={<Home />} />
+          <Route
+            path="/"
+            element={
+              <Home
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+              />
+            }
+          />
 
           <Route path="/search" element={<SearchResults />} />
 
