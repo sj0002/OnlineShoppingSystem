@@ -1,11 +1,39 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function ProductCard({ id, name, price, description, imageUrl }) {
+function ProductCard({ id, name, price, description, category, imageUrl }) {
     const navigate = useNavigate();
 
     const handleViewDetails = () => {
         navigate(`/products/${id}`);
+    };
+
+    const addToCart = (event) => {
+        event.stopPropagation();
+
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        const existingProduct = cart.find(item => item.id === id);
+
+        if (existingProduct) {
+            existingProduct.quantity += 1;
+        } else {
+            cart.push({
+                id,
+                name,
+                price,
+                description,
+                category,
+                imageUrl,
+                quantity: 1
+            });
+        }
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+
+        window.dispatchEvent(new Event('cartUpdated'));
+
+        alert(`${name} added to cart!`);
     };
 
     return (
@@ -28,7 +56,6 @@ function ProductCard({ id, name, price, description, imageUrl }) {
             </div>
 
             <div style={styles.info}>
-
                 <h3 style={styles.title}>
                     {name}
                 </h3>
@@ -43,18 +70,14 @@ function ProductCard({ id, name, price, description, imageUrl }) {
 
                 <button
                     style={styles.button}
-                    onClick={(event) => {
-                        event.stopPropagation();
-                    }}
+                    onClick={addToCart}
                 >
                     Add to Cart
                 </button>
-
             </div>
         </div>
     );
 }
-
 
 const styles = {
     card: {
