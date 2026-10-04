@@ -2,184 +2,161 @@ import React, { useEffect, useState } from 'react';
 import ProductCard from './ProductCard';
 
 function Home() {
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
+	const [products, setProducts] = useState([]);
+	const [selectedCategory, setSelectedCategory] = useState('All');
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState('');
 
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                const response = await fetch(
-                    'http://localhost:5000/api/products'
-                );
+	const categories = [
+		{ label: 'All Categories', value: 'All' },
+		{ label: 'Apparel', value: 'Apparel' },
+		{ label: 'Travel & Bags', value: 'Travel & Bags' },
+		{ label: 'Electronics', value: 'Electronics' },
+		{ label: 'Footwear', value: 'Footwear' },
+	];
 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch products');
-                }
+	useEffect(() => {
+		const fetchProducts = async () => {
+			try {
+				const response = await fetch(
+					'http://localhost:5000/api/products'
+				);
 
-                const data = await response.json();
-                setProducts(data);
+				if (!response.ok) {
+					throw new Error('Unable to load products');
+				}
 
-            } catch (error) {
-                console.error('Error fetching products:', error);
-                setError('Unable to load products');
-            } finally {
-                setLoading(false);
-            }
-        };
+				setProducts(await response.json());
+			} catch (fetchError) {
+				console.error('Error fetching products:', fetchError);
+				setError('Unable to load products');
+			} finally {
+				setLoading(false);
+			}
+		};
 
-        fetchProducts();
-    }, []);
+		fetchProducts();
+	}, []);
 
+	const filteredProducts = selectedCategory === 'All'
+		? products
+		: products.filter((product) => product.category === selectedCategory);
 
-    return (
-        <div style={styles.page}>
+	const heading = selectedCategory === 'All'
+		? 'New Arrivals'
+		: `${selectedCategory} Products`;
 
-            <section style={styles.hero}>
-                <h1>Welcome to Online Shopping</h1>
-                <p>
-                    Discover quality products at great prices.
-                </p>
-            </section>
+	return (
+		<main style={styles.container}>
+			<h1 style={styles.title}>Discover Our Products</h1>
 
+			<section style={styles.categorySection}>
+				<h2 style={styles.sectionHeading}>Shop by Category</h2>
+				<div style={styles.categoryGrid}>
+					{categories.map((category) => (
+						<button
+							key={category.value}
+							type="button"
+							onClick={() => setSelectedCategory(category.value)}
+							style={{
+								...styles.categoryCard,
+								borderColor: selectedCategory === category.value
+									? '#ffffff'
+									: '#333333',
+							}}
+						>
+							{category.label}
+						</button>
+					))}
+				</div>
+			</section>
 
-            <section style={styles.section}>
+			<section>
+				<h2 style={styles.sectionHeading}>{heading}</h2>
 
-                <h2 style={styles.sectionTitle}>
-                    Shop by Category
-                </h2>
+				{loading && (
+					<p style={styles.message}>Loading products...</p>
+				)}
 
-                <div style={styles.categoryGrid}>
+				{!loading && error && (
+					<p style={styles.error}>{error}</p>
+				)}
 
-                    <div style={styles.categoryCard}>
-                        <span>👕</span>
-                        <h3>Apparel</h3>
-                    </div>
+				{!loading && !error && filteredProducts.length === 0 && (
+					<p style={styles.message}>
+						No products available in this category.
+					</p>
+				)}
 
-                    <div style={styles.categoryCard}>
-                        <span>👜</span>
-                        <h3>Travel & Bags</h3>
-                    </div>
-
-                    <div style={styles.categoryCard}>
-                        <span>💻</span>
-                        <h3>Tech Accessories</h3>
-                    </div>
-
-                    <div style={styles.categoryCard}>
-                        <span>👟</span>
-                        <h3>Footwear</h3>
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <section style={styles.section}>
-
-                <h2 style={styles.sectionTitle}>
-                    New Arrivals
-                </h2>
-
-                {loading && (
-                    <p style={styles.message}>
-                        Loading products...
-                    </p>
-                )}
-
-                {error && (
-                    <p style={styles.error}>
-                        {error}
-                    </p>
-                )}
-
-                {!loading && !error && (
-                    <div style={styles.productGrid}>
-
-                        {products.map((product) => (
-                            <ProductCard
-                                key={product._id}
-                                id={product._id}
-                                name={product.name}
-                                price={product.price}
-                                description={product.description}
-                                imageUrl={product.imageUrl}
-                            />
-                        ))}
-
-                    </div>
-                )}
-
-            </section>
-
-        </div>
-    );
+				{!loading && !error && filteredProducts.length > 0 && (
+					<div style={styles.productGrid}>
+						{filteredProducts.map((product) => (
+							<ProductCard
+								key={product._id}
+								id={product._id}
+								name={product.name}
+								price={product.price}
+								description={product.description}
+								category={product.category}
+								imageUrl={product.imageUrl}
+							/>
+						))}
+					</div>
+				)}
+			</section>
+		</main>
+	);
 }
 
-
 const styles = {
-    page: {
-        backgroundColor: '#000',
-        color: '#fff',
-        minHeight: '100vh',
-        padding: '0 20px',
-    },
-
-    hero: {
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '60px 0 40px',
-    },
-
-    heroTitle: {
-        fontSize: '40px',
-    },
-
-    section: {
-        maxWidth: '1200px',
-        margin: '0 auto',
-        paddingBottom: '40px',
-    },
-
-    sectionTitle: {
-        fontSize: '28px',
-        borderBottom: '1px solid #333',
-        paddingBottom: '15px',
-        marginBottom: '25px',
-    },
-
-    categoryGrid: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: '25px',
-    },
-
-    categoryCard: {
-        backgroundColor: '#111',
-        border: '1px solid #222',
-        borderRadius: '8px',
-        padding: '35px 20px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '10px',
-        fontSize: '18px',
-    },
-
-    productGrid: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '25px',
-    },
-
-    message: {
-        color: '#aaa',
-    },
-
-    error: {
-        color: '#ff6b6b',
-    },
+	container: {
+		maxWidth: '1400px',
+		margin: '0 auto',
+		padding: '40px 20px',
+		color: '#fff',
+		minHeight: '80vh',
+	},
+	title: {
+		fontSize: '36px',
+		fontWeight: 'normal',
+		margin: '0 0 40px 0',
+	},
+	categorySection: {
+		marginBottom: '50px',
+	},
+	sectionHeading: {
+		fontSize: '28px',
+		fontWeight: 'normal',
+		margin: '0 0 25px 0',
+	},
+	categoryGrid: {
+		display: 'grid',
+		gridTemplateColumns: 'repeat(5, minmax(0, 1fr))',
+		gap: '15px',
+	},
+	categoryCard: {
+		backgroundColor: '#111111',
+		border: '2px solid #333333',
+		borderRadius: '8px',
+		color: '#fff',
+		cursor: 'pointer',
+		fontSize: '16px',
+		minHeight: '90px',
+		padding: '20px 12px',
+	},
+	productGrid: {
+		display: 'flex',
+		gap: '20px',
+		flexWrap: 'wrap',
+	},
+	message: {
+		color: '#aaa',
+		fontSize: '18px',
+	},
+	error: {
+		color: '#ff6b6b',
+		fontSize: '18px',
+	},
 };
 
 export default Home;
