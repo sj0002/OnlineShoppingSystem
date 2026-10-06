@@ -1,5 +1,6 @@
 // frontend/src/pages/AdminDashboard.js
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import categories from '../categories';
 
 function AdminDashboard() {
@@ -97,6 +98,9 @@ function AdminDashboard() {
           >
             📈 System Reports
           </button>
+          <Link to="/" style={styles.storeLink}>
+            🛒 View Store
+          </Link>
         </nav>
       </aside>
 
@@ -341,6 +345,18 @@ const styles = {
     cursor: 'pointer',
     borderRadius: '4px',
     fontWeight: 'bold',
+  },
+  storeLink: {
+    display: 'block',
+    backgroundColor: '#3498db',
+    color: '#fff',
+    padding: '15px',
+    textAlign: 'center',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    textDecoration: 'none',
+    borderRadius: '4px',
+    marginTop: '20px',
   },
   mainContent: {
     flex: 1,
