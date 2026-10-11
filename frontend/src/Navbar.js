@@ -10,7 +10,10 @@ function Navbar({
 }) {
     const navigate = useNavigate();
     const { pathname } = useLocation();
-    const isAuthRoute = pathname === '/login' || pathname === '/register';
+    const isAuthRoute = pathname === '/login'
+        || pathname === '/register'
+        || pathname.startsWith('/admin')
+        || pathname.startsWith('/seller');
 
     const handleSearch = (e) => {
         // Check if the user pressed the 'Enter' key and the search isn't empty
