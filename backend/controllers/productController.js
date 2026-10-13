@@ -80,10 +80,46 @@ const searchProducts = async (req, res) => {
 
 
 // ============================
+// CREATE PRODUCT
+// ============================
+const createProduct = async (req, res) => {
+    try {
+        const {
+            name,
+            description,
+            price,
+            category,
+            stockQuantity,
+            imageUrl,
+            seller
+        } = req.body;
+
+        const product = await Product.create({
+            name,
+            description,
+            price,
+            category,
+            stockQuantity,
+            imageUrl,
+            seller
+        });
+
+        res.status(201).json(product);
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
+
+
+// ============================
 // EXPORT
 // ============================
 module.exports = {
     getProducts,
     getProductById,
-    searchProducts    // 👈 අලුතින් add කරපු එක
+    searchProducts,
+    createProduct
 };
