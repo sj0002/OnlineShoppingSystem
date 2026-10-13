@@ -1,45 +1,65 @@
-// frontend/src/pages/SellerDashboard.js
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 function SellerDashboard() {
-    const [activeTab, setActiveTab] = useState('products');
+    const [activeTab, setActiveTab] = useState('overview');
+
+    const navigationItems = [
+        { id: 'overview', label: 'Dashboard Overview' },
+        { id: 'products', label: 'My Products' },
+        { id: 'add-product', label: 'Add New Product' },
+        { id: 'orders', label: 'My Orders' },
+    ];
 
     return (
         <div style={styles.dashboardContainer}>
-
-            {/* Sidebar Navigation */}
             <aside style={styles.sidebar}>
                 <h2 style={styles.brand}>SELLER PANEL</h2>
                 <nav style={styles.nav}>
-                    <button
-                        style={activeTab === 'products' ? styles.activeNavItem : styles.navItem}
-                        onClick={() => setActiveTab('products')}
-                    >
-                        📦 Manage Products
-                    </button>
-                    <button
-                        style={activeTab === 'orders' ? styles.activeNavItem : styles.navItem}
-                        onClick={() => setActiveTab('orders')}
-                    >
-                        📋 Manage Orders
-                    </button>
-                    <button style={styles.navItem}>
-                        📊 Sales Reports
-                    </button>
+                    {navigationItems.map((item) => (
+                        <button
+                            key={item.id}
+                            type="button"
+                            style={activeTab === item.id ? styles.activeNavItem : styles.navItem}
+                            onClick={() => setActiveTab(item.id)}
+                        >
+                            {item.label}
+                        </button>
+                    ))}
+                    <Link to="/" style={styles.storeLink}>View Store</Link>
                 </nav>
             </aside>
 
-            {/* Main Workspace */}
             <main style={styles.mainContent}>
-
-                {/* Products Tab */}
-                {activeTab === 'products' && (
-                    <div>
-                        <div style={styles.headerRow}>
-                            <h2>Product Listings</h2>
-                            <button style={styles.addBtn}>+ Add New Product</button>
+                {activeTab === 'overview' && (
+                    <section>
+                        <h2>Welcome, Seller!</h2>
+                        <p style={styles.mutedText}>Here is a quick look at your store activity.</p>
+                        <div style={styles.statsGrid}>
+                            <div style={styles.statCard}>
+                                <span style={styles.statLabel}>Active Products</span>
+                                <strong style={styles.statValue}>24</strong>
+                            </div>
+                            <div style={styles.statCard}>
+                                <span style={styles.statLabel}>Pending Orders</span>
+                                <strong style={styles.statValue}>8</strong>
+                            </div>
+                            <div style={styles.statCard}>
+                                <span style={styles.statLabel}>This Month&apos;s Sales</span>
+                                <strong style={styles.statValue}>Rs. 186,500</strong>
+                            </div>
                         </div>
+                    </section>
+                )}
 
+                {activeTab === 'products' && (
+                    <section>
+                        <div style={styles.headerRow}>
+                            <h2>My Products</h2>
+                            <button type="button" style={styles.addBtn} onClick={() => setActiveTab('add-product')}>
+                                Add New Product
+                            </button>
+                        </div>
                         <table style={styles.table}>
                             <thead>
                                 <tr>
@@ -47,39 +67,41 @@ function SellerDashboard() {
                                     <th style={styles.th}>Category</th>
                                     <th style={styles.th}>Price (Rs.)</th>
                                     <th style={styles.th}>Stock</th>
-                                    <th style={styles.th}>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr style={styles.tr}>
                                     <td style={styles.td}>Hybrid Duffel Bag</td>
-                                    <td style={styles.td}>Travel & Bags</td>
+                                    <td style={styles.td}>Travel &amp; Bags</td>
                                     <td style={styles.td}>8500</td>
                                     <td style={styles.td}>12</td>
-                                    <td style={styles.td}>
-                                        <button style={styles.actionBtn}>Edit</button>
-                                        <button style={styles.deleteBtn}>Delete</button>
-                                    </td>
                                 </tr>
                                 <tr style={styles.tr}>
                                     <td style={styles.td}>Heavy Textured T-Shirt</td>
                                     <td style={styles.td}>Apparel</td>
                                     <td style={styles.td}>3500</td>
                                     <td style={styles.td}>45</td>
-                                    <td style={styles.td}>
-                                        <button style={styles.actionBtn}>Edit</button>
-                                        <button style={styles.deleteBtn}>Delete</button>
-                                    </td>
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
+                    </section>
                 )}
 
-                {/* Orders Tab */}
+                {activeTab === 'add-product' && (
+                    <section>
+                        <h2>Add New Product</h2>
+                        <div style={styles.placeholderPanel}>
+                            <p style={styles.mutedText}>Product creation form coming soon.</p>
+                            <button type="button" style={styles.addBtn} onClick={() => setActiveTab('products')}>
+                                View My Products
+                            </button>
+                        </div>
+                    </section>
+                )}
+
                 {activeTab === 'orders' && (
-                    <div>
-                        <h2>Order Management</h2>
+                    <section>
+                        <h2>My Orders</h2>
                         <table style={styles.table}>
                             <thead>
                                 <tr>
@@ -87,7 +109,6 @@ function SellerDashboard() {
                                     <th style={styles.th}>Customer</th>
                                     <th style={styles.th}>Total (Rs.)</th>
                                     <th style={styles.th}>Status</th>
-                                    <th style={styles.th}>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -95,25 +116,12 @@ function SellerDashboard() {
                                     <td style={styles.td}>#ORD-001</td>
                                     <td style={styles.td}>John Doe</td>
                                     <td style={styles.td}>12000</td>
-                                    <td style={styles.td}>
-                                        <select style={styles.statusSelect} defaultValue="Pending">
-                                            <option value="Pending">Pending</option>
-                                            <option value="Confirmed">Confirmed</option>
-                                            <option value="Packed">Packed</option>
-                                            <option value="Shipped">Shipped</option>
-                                            <option value="Delivered">Delivered</option>
-                                            <option value="Cancelled">Cancelled</option>
-                                        </select>
-                                    </td>
-                                    <td style={styles.td}>
-                                        <button style={styles.actionBtn}>Update</button>
-                                    </td>
+                                    <td style={styles.td}>Pending</td>
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
+                    </section>
                 )}
-
             </main>
         </div>
     );
@@ -155,7 +163,6 @@ const styles = {
         fontSize: '16px',
         cursor: 'pointer',
         borderRadius: '4px',
-        transition: 'background-color 0.2s',
     },
     activeNavItem: {
         backgroundColor: '#222',
@@ -168,9 +175,56 @@ const styles = {
         borderRadius: '4px',
         fontWeight: 'bold',
     },
+    storeLink: {
+        display: 'block',
+        backgroundColor: '#3498db',
+        color: '#fff',
+        padding: '15px',
+        textAlign: 'center',
+        fontSize: '16px',
+        fontWeight: 'bold',
+        textDecoration: 'none',
+        borderRadius: '4px',
+        marginTop: '20px',
+    },
     mainContent: {
         flex: 1,
         padding: '40px',
+    },
+    mutedText: {
+        color: '#aaa',
+    },
+    statsGrid: {
+        display: 'flex',
+        gap: '20px',
+        flexWrap: 'wrap',
+        marginTop: '30px',
+    },
+    statCard: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+        minWidth: '200px',
+        backgroundColor: '#111',
+        border: '1px solid #333',
+        padding: '20px',
+        borderRadius: '8px',
+    },
+    statLabel: {
+        color: '#aaa',
+        fontSize: '14px',
+        textTransform: 'uppercase',
+    },
+    statValue: {
+        fontSize: '28px',
+    },
+    placeholderPanel: {
+        maxWidth: '600px',
+        marginTop: '25px',
+        padding: '25px',
+        backgroundColor: '#111',
+        border: '1px solid #333',
+        borderRadius: '8px',
     },
     headerRow: {
         display: 'flex',
@@ -191,8 +245,6 @@ const styles = {
         width: '100%',
         borderCollapse: 'collapse',
         backgroundColor: '#111',
-        borderRadius: '8px',
-        overflow: 'hidden',
     },
     th: {
         backgroundColor: '#1a1a1a',
@@ -208,30 +260,6 @@ const styles = {
         padding: '15px',
         verticalAlign: 'middle',
     },
-    actionBtn: {
-        backgroundColor: '#333',
-        color: '#fff',
-        border: '1px solid #444',
-        padding: '8px 12px',
-        marginRight: '10px',
-        borderRadius: '4px',
-        cursor: 'pointer',
-    },
-    deleteBtn: {
-        backgroundColor: '#4a1111',
-        color: '#ff6b6b',
-        border: '1px solid #6b1a1a',
-        padding: '8px 12px',
-        borderRadius: '4px',
-        cursor: 'pointer',
-    },
-    statusSelect: {
-        backgroundColor: '#222',
-        color: '#fff',
-        border: '1px solid #444',
-        padding: '8px',
-        borderRadius: '4px',
-    }
 };
 
 export default SellerDashboard;
