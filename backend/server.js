@@ -6,6 +6,7 @@ const connectDB = require('./config/db');
 
 const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes');
+const adminRoutes = require('./routes/adminRoutes');   // 👈 අලුතින් add කරපු එක
 
 // Initialize Express
 const app = express();
@@ -19,6 +20,9 @@ app.use('/api/products', productRoutes);
 
 // Authentication routes
 app.use('/api/auth', authRoutes);
+
+// Admin routes                                            👈 අලුතින් add කරපු එක
+app.use('/api/admin', adminRoutes);
 
 // Test route
 app.get('/', (req, res) => {

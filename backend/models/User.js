@@ -27,6 +27,13 @@ const userSchema = new mongoose.Schema(
             type: String,
             enum: ['Customer', 'Seller', 'Admin'],
             default: 'Customer'
+        },
+
+        // 👇 අලුතින් add කරපු එක
+        status: {
+            type: String,
+            enum: ['pending', 'approved', 'rejected'],
+            default: 'approved'
         }
     },
     {

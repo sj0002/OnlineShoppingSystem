@@ -1,8 +1,105 @@
 // frontend/src/pages/AdminDashboard.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('approvals');
+  const [pendingSellers, setPendingSellers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [actionMessage, setActionMessage] = useState('');
+
+  // ============================
+  // FETCH PENDING SELLERS
+  // ============================
+  const fetchPendingSellers = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch(
+        'http://localhost:5000/api/admin/sellers/pending'
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch pending sellers');
+      }
+
+      const data = await response.json();
+      setPendingSellers(data);
+
+    } catch (error) {
+      console.error('Error fetching sellers:', error);
+      setError('Unable to load pending sellers');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'approvals') {
+      fetchPendingSellers();
+    }
+  }, [activeTab]);
+
+  // ============================
+  // APPROVE SELLER
+  // ============================
+  const handleApprove = async (sellerId, sellerName) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/admin/sellers/${sellerId}/approve`,
+        { method: 'PUT' }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to approve seller');
+      }
+
+      setActionMessage(`✅ ${sellerName} approved successfully!`);
+
+      // Refresh the list
+      fetchPendingSellers();
+
+      // Clear message after 3 seconds
+      setTimeout(() => setActionMessage(''), 3000);
+
+    } catch (error) {
+      console.error('Approve error:', error);
+      setActionMessage(`❌ Error: ${error.message}`);
+      setTimeout(() => setActionMessage(''), 3000);
+    }
+  };
+
+  // ============================
+  // REJECT SELLER
+  // ============================
+  const handleReject = async (sellerId, sellerName) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/admin/sellers/${sellerId}/reject`,
+        { method: 'PUT' }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to reject seller');
+      }
+
+      setActionMessage(`❌ ${sellerName} rejected.`);
+
+      fetchPendingSellers();
+
+      setTimeout(() => setActionMessage(''), 3000);
+
+    } catch (error) {
+      console.error('Reject error:', error);
+      setActionMessage(`❌ Error: ${error.message}`);
+      setTimeout(() => setActionMessage(''), 3000);
+    }
+  };
 
   return (
     <div style={styles.dashboardContainer}>
@@ -46,41 +143,76 @@ function AdminDashboard() {
           <div>
             <div style={styles.headerRow}>
               <h2>Pending Seller Registrations</h2>
+              <button 
+                style={styles.refreshBtn}
+                onClick={fetchPendingSellers}
+              >
+                🔄 Refresh
+              </button>
             </div>
-            
-            <table style={styles.table}>
-              <thead>
-                <tr>
-                  <th style={styles.th}>Store Name</th>
-                  <th style={styles.th}>Owner Name</th>
-                  <th style={styles.th}>Email</th>
-                  <th style={styles.th}>Date Applied</th>
-                  <th style={styles.th}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr style={styles.tr}>
-                  <td style={styles.td}>Tech Gear Hub</td>
-                  <td style={styles.td}>Jane Smith</td>
-                  <td style={styles.td}>jane.smith@email.com</td>
-                  <td style={styles.td}>2026-08-01</td>
-                  <td style={styles.td}>
-                    <button style={styles.approveBtn}>Approve</button>
-                    <button style={styles.rejectBtn}>Reject</button>
-                  </td>
-                </tr>
-                <tr style={styles.tr}>
-                  <td style={styles.td}>Colombo Apparels</td>
-                  <td style={styles.td}>Kamal Perera</td>
-                  <td style={styles.td}>kamal@colomboapp.com</td>
-                  <td style={styles.td}>2026-08-02</td>
-                  <td style={styles.td}>
-                    <button style={styles.approveBtn}>Approve</button>
-                    <button style={styles.rejectBtn}>Reject</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+
+            {/* Action Message */}
+            {actionMessage && (
+              <div style={styles.actionMessage}>
+                {actionMessage}
+              </div>
+            )}
+
+            {/* Loading */}
+            {loading && (
+              <p style={styles.message}>Loading pending sellers...</p>
+            )}
+
+            {/* Error */}
+            {error && (
+              <p style={styles.error}>{error}</p>
+            )}
+
+            {/* No Pending Sellers */}
+            {!loading && !error && pendingSellers.length === 0 && (
+              <p style={styles.message}>
+                No pending seller registrations.
+              </p>
+            )}
+
+            {/* Sellers Table */}
+            {!loading && !error && pendingSellers.length > 0 && (
+              <table style={styles.table}>
+                <thead>
+                  <tr>
+                    <th style={styles.th}>Name</th>
+                    <th style={styles.th}>Email</th>
+                    <th style={styles.th}>Date Applied</th>
+                    <th style={styles.th}>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pendingSellers.map((seller) => (
+                    <tr key={seller._id} style={styles.tr}>
+                      <td style={styles.td}>{seller.name}</td>
+                      <td style={styles.td}>{seller.email}</td>
+                      <td style={styles.td}>
+                        {new Date(seller.createdAt).toLocaleDateString()}
+                      </td>
+                      <td style={styles.td}>
+                        <button 
+                          style={styles.approveBtn}
+                          onClick={() => handleApprove(seller._id, seller.name)}
+                        >
+                          Approve
+                        </button>
+                        <button 
+                          style={styles.rejectBtn}
+                          onClick={() => handleReject(seller._id, seller.name)}
+                        >
+                          Reject
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         )}
 
@@ -134,7 +266,7 @@ const styles = {
     fontWeight: '900',
     letterSpacing: '1px',
     marginBottom: '40px',
-    color: '#3498db', // Give Admin a slightly different accent color
+    color: '#3498db',
     borderBottom: '1px solid #333',
     paddingBottom: '20px',
   },
@@ -174,6 +306,23 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: '30px',
+  },
+  refreshBtn: {
+    backgroundColor: '#222',
+    color: '#fff',
+    border: '1px solid #444',
+    padding: '10px 18px',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '14px',
+  },
+  actionMessage: {
+    backgroundColor: '#1a3a1a',
+    color: '#6bff6b',
+    padding: '12px 18px',
+    borderRadius: '4px',
+    marginBottom: '20px',
+    fontSize: '15px',
   },
   table: {
     width: '100%',
@@ -238,7 +387,15 @@ const styles = {
     fontSize: '28px',
     fontWeight: 'bold',
     color: '#fff',
-  }
+  },
+  message: {
+    color: '#aaa',
+    fontSize: '16px',
+  },
+  error: {
+    color: '#ff6b6b',
+    fontSize: '16px',
+  },
 };
 
 export default AdminDashboard;
