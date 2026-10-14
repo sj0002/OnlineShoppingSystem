@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 
 function Cart() {
     const [cartItems, setCartItems] = useState([]);
-    const [paymentMethod, setPaymentMethod] = useState('COD');
+    const [paymentMethod, setPaymentMethod] = useState('Cash on Delivery');
+    const [placingOrder, setPlacingOrder] = useState(false);
+const [orderMessage, setOrderMessage] = useState('');
+const [orderError, setOrderError] = useState('');
 
     useEffect(() => {
         loadCart();
@@ -71,6 +74,74 @@ function Cart() {
     const shipping = cartItems.length > 0 ? 400 : 0;
 
     const total = subtotal + shipping;
+    const handlePlaceOrder = async (event) => {
+    event.preventDefault();
+
+    if (cartItems.length === 0) {
+        setOrderError('Your cart is empty.');
+        return;
+    }
+
+    const token =
+        localStorage.getItem('token') ||
+        localStorage.getItem('authToken');
+
+    if (!token) {
+        setOrderError('Please log in before placing an order.');
+        return;
+    }
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    const shippingAddress = {
+        fullName: formData.get('fullName'),
+        streetAddress: formData.get('streetAddress'),
+        city: formData.get('city'),
+        postalCode: formData.get('postalCode'),
+        phoneNumber: formData.get('phoneNumber')
+    };
+
+    setPlacingOrder(true);
+    setOrderError('');
+    setOrderMessage('');
+
+    try {
+        const response = await fetch('http://localhost:5000/api/orders', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                items: cartItems.map((item) => ({
+                    product: item.id,
+                    quantity: item.quantity,
+                    price: item.price
+                })),
+                totalAmount: total,
+                paymentMethod,
+                shippingAddress
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Unable to place order.');
+        }
+
+        localStorage.setItem('cart', JSON.stringify([]));
+        setCartItems([]);
+        window.dispatchEvent(new Event('cartUpdated'));
+        setOrderMessage('Order placed successfully!');
+        form.reset();
+    } catch (error) {
+        setOrderError(error.message || 'Unable to place order.');
+    } finally {
+        setPlacingOrder(false);
+    }
+};
 
     return (
         <div style={styles.container}>
@@ -214,10 +285,12 @@ function Cart() {
                             Shipping Address
                         </h3>
 
-                        <form style={styles.checkoutForm}>
+                        <form style={styles.checkoutForm}
+                         onSubmit={handlePlaceOrder}>
 
                             <input
                                 type="text"
+                                name="fullName"
                                 placeholder="Full Name"
                                 style={styles.input}
                                 required
@@ -225,6 +298,7 @@ function Cart() {
 
                             <input
                                 type="text"
+                                name="streetAddress"
                                 placeholder="Street Address"
                                 style={styles.input}
                                 required
@@ -234,6 +308,7 @@ function Cart() {
 
                                 <input
                                     type="text"
+                                    name="city"
                                     placeholder="City"
                                     style={styles.inputHalf}
                                     required
@@ -241,6 +316,7 @@ function Cart() {
 
                                 <input
                                     type="text"
+                                     name="postalCode"
                                     placeholder="Postal Code"
                                     style={styles.inputHalf}
                                     required
@@ -250,6 +326,7 @@ function Cart() {
 
                             <input
                                 type="text"
+                                name="phoneNumber"
                                 placeholder="Phone Number"
                                 style={styles.input}
                                 required
@@ -273,10 +350,10 @@ function Cart() {
                                         type="radio"
                                         value="COD"
                                         checked={
-                                            paymentMethod === 'COD'
+                                            paymentMethod === 'Cash on Delivery'
                                         }
                                         onChange={() =>
-                                            setPaymentMethod('COD')
+                                            setPaymentMethod('Cash on Delivery')
                                         }
                                         style={styles.radio}
                                     />
@@ -291,10 +368,10 @@ function Cart() {
                                         type="radio"
                                         value="Card"
                                         checked={
-                                            paymentMethod === 'Card'
+                                            paymentMethod === 'Card / Bank Transfer'
                                         }
                                         onChange={() =>
-                                            setPaymentMethod('Card')
+                                            setPaymentMethod('Card / Bank Transfer')
                                         }
                                         style={styles.radio}
                                     />
@@ -304,14 +381,21 @@ function Cart() {
                                 </label>
 
                             </div>
+                            {orderError && (
+    <p style={styles.errorBox}>{orderError}</p>
+)}
 
-                            <button
-                                type="button"
-                                style={styles.checkoutBtn}
-                            >
-                                Place Order
-                            </button>
+{orderMessage && (
+    <p style={styles.successBox}>{orderMessage}</p>
+)}
 
+                           <button
+    type="submit"
+    style={styles.checkoutBtn}
+    disabled={placingOrder}
+>
+    {placingOrder ? 'Placing Order...' : 'PLACE ORDER'}
+</button>
                         </form>
 
                     </div>
@@ -543,7 +627,20 @@ const styles = {
         fontWeight: 'bold',
         cursor: 'pointer',
         textTransform: 'uppercase',
-    }
+    },
+    errorBox: {
+    color: '#ff6b6b',
+    padding: '12px',
+    backgroundColor: '#2b1111',
+    borderRadius: '6px'
+},
+
+successBox: {
+    color: '#86efac',
+    padding: '12px',
+    backgroundColor: '#14351f',
+    borderRadius: '6px'
+},
 };
 
 export default Cart;
