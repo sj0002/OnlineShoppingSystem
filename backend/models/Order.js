@@ -7,6 +7,7 @@ const orderSchema = new mongoose.Schema(
             ref: 'User',
             required: true
         },
+
         items: [
             {
                 product: {
@@ -14,14 +15,48 @@ const orderSchema = new mongoose.Schema(
                     ref: 'Product',
                     required: true
                 },
-                quantity: { type: Number, required: true, min: 1 },
-                price: { type: Number, required: true }
+                quantity: {
+                    type: Number,
+                    required: true,
+                    min: 1
+                },
+                price: {
+                    type: Number,
+                    required: true,
+                    min: 0
+                }
             }
         ],
-        totalAmount: { type: Number, required: true },
+
+        totalAmount: {
+            type: Number,
+            required: true,
+            min: 0
+        },
+
+        shippingAddress: {
+            fullName: { type: String, required: true },
+            streetAddress: { type: String, required: true },
+            city: { type: String, required: true },
+            postalCode: { type: String, required: true },
+            phoneNumber: { type: String, required: true }
+        },
+
+        paymentMethod: {
+            type: String,
+            enum: ['Cash on Delivery', 'Card / Bank Transfer'],
+            required: true
+        },
+
         status: {
             type: String,
-            enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
+            enum: [
+                'Pending',
+                'Processing',
+                'Shipped',
+                'Delivered',
+                'Cancelled'
+            ],
             default: 'Pending'
         }
     },
