@@ -1,5 +1,6 @@
 // frontend/src/pages/AdminDashboard.js
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('approvals');
@@ -126,12 +127,21 @@ function AdminDashboard() {
           >
             📁 Manage Categories
           </button>
+          <button
+            style={activeTab === 'products' ? styles.activeNavItem : styles.navItem}
+            onClick={() => setActiveTab('products')}
+          >
+            🛍️ Add New Product
+          </button>
           <button 
             style={activeTab === 'reports' ? styles.activeNavItem : styles.navItem}
             onClick={() => setActiveTab('reports')}
           >
             📈 System Reports
           </button>
+          <Link to="/" style={styles.storeLink}>
+            🛒 View Store
+          </Link>
         </nav>
       </aside>
 
@@ -143,6 +153,13 @@ function AdminDashboard() {
           <div>
             <div style={styles.headerRow}>
               <h2>Pending Seller Registrations</h2>
+              <button
+                type="button"
+                style={styles.headerAction}
+                onClick={() => setActiveTab('products')}
+              >
+                Add New Product
+              </button>
               <button 
                 style={styles.refreshBtn}
                 onClick={fetchPendingSellers}
@@ -297,6 +314,18 @@ const styles = {
     borderRadius: '4px',
     fontWeight: 'bold',
   },
+  storeLink: {
+    display: 'block',
+    backgroundColor: '#3498db',
+    color: '#fff',
+    padding: '15px',
+    textAlign: 'center',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    textDecoration: 'none',
+    borderRadius: '4px',
+    marginTop: '20px',
+  },
   mainContent: {
     flex: 1,
     padding: '40px',
@@ -306,6 +335,16 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: '30px',
+  },
+  headerAction: {
+    backgroundColor: '#3498db',
+    border: 'none',
+    borderRadius: '4px',
+    color: '#fff',
+    cursor: 'pointer',
+    fontSize: '15px',
+    fontWeight: 'bold',
+    padding: '12px 18px',
   },
   refreshBtn: {
     backgroundColor: '#222',
@@ -361,6 +400,58 @@ const styles = {
     padding: '8px 12px',
     borderRadius: '4px',
     cursor: 'pointer',
+  },
+  productForm: {
+    maxWidth: '720px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '18px',
+    marginTop: '25px',
+    padding: '25px',
+    backgroundColor: '#111',
+    border: '1px solid #333',
+    borderRadius: '8px',
+  },
+  formGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+    gap: '18px',
+  },
+  formLabel: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    color: '#bbb',
+    fontSize: '14px',
+  },
+  formInput: {
+    boxSizing: 'border-box',
+    width: '100%',
+    padding: '11px 12px',
+    backgroundColor: '#222',
+    border: '1px solid #444',
+    borderRadius: '4px',
+    color: '#fff',
+    fontSize: '15px',
+  },
+  submitBtn: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#3498db',
+    border: 'none',
+    borderRadius: '4px',
+    color: '#fff',
+    cursor: 'pointer',
+    fontSize: '15px',
+    fontWeight: 'bold',
+    padding: '12px 20px',
+  },
+  successMessage: {
+    color: '#6bff6b',
+    margin: '0',
+  },
+  errorMessage: {
+    color: '#ff6b6b',
+    margin: '0',
   },
   statsGrid: {
     display: 'flex',
