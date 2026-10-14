@@ -5,8 +5,9 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 
 const productRoutes = require('./routes/productRoutes');
-const authRoutes = require('./routes/authRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const authRoutes = require('./routes/authRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 // Initialize Express
 const app = express();
@@ -21,6 +22,9 @@ app.use('/api/orders', orderRoutes);
 
 // Authentication routes
 app.use('/api/auth', authRoutes);
+
+// Admin routes
+app.use('/api/admin', adminRoutes);
 
 // Test route
 app.get('/', (req, res) => {

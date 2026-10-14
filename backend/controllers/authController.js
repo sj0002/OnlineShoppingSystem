@@ -9,9 +9,6 @@ const jwt = require('jsonwebtoken');
 const registerUser = async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
-        console.log('REGISTER EMAIL:', email);
-       
-        
 
         // Check required fields
         if (!name || !email || !password) {
@@ -29,24 +26,31 @@ const registerUser = async (req, res) => {
             });
         }
 
-       const user = await User.create({
-    name,
-    email,
-    password,
-    role: role || 'Customer'
-});
+        // 👇 Determine the status based on role
+        // Seller කෙනෙක් නම් → 'pending' (admin approve කරන්න ඕන)
+        // අනිත් අයට → 'approved'
+        const userRole = role || 'Customer';
+        const userStatus = userRole === 'Seller' ? 'pending' : 'approved';
 
-console.log('REGISTERED EMAIL:', user.email);
-console.log('PASSWORD HASHED:', user.password.startsWith('$2'));
-console.log('PASSWORD HASH:', user.password);
+        const user = await User.create({
+            name,
+            email,
+            password,
+            role: userRole,
+            status: userStatus   // 👈 අලුතින් add කරපු එක
+        });
+
         // Registration successful
         res.status(201).json({
-            message: 'User registered successfully',
+            message: userRole === 'Seller'
+                ? 'Seller registration submitted! Please wait for admin approval.'
+                : 'User registered successfully',
             user: {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                status: user.status   // 👈 අලුතින් add කරපු එක
             }
         });
 
@@ -89,15 +93,25 @@ const loginUser = async (req, res) => {
             user.password
         );
 
-        console.log('LOGIN EMAIL:', email);
-console.log('USER FOUND:', !!user);
-console.log('PASSWORD IS HASHED:', user.password.startsWith('$2'));
-console.log('PASSWORD MATCH:', isPasswordCorrect);
-
         if (!isPasswordCorrect) {
             return res.status(401).json({
                 message: 'Invalid email or password'
             });
+        }
+
+        // 👇 Check seller status before allowing login
+        if (user.role === 'Seller') {
+            if (user.status === 'pending') {
+                return res.status(403).json({
+                    message: 'Your seller account is pending admin approval. Please wait.'
+                });
+            }
+
+            if (user.status === 'rejected') {
+                return res.status(403).json({
+                    message: 'Your seller account has been rejected. Contact admin for details.'
+                });
+            }
         }
 
         // Generate JWT token
@@ -120,7 +134,8 @@ console.log('PASSWORD MATCH:', isPasswordCorrect);
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                status: user.status   // 👈 අලුතින් add කරපු එක
             }
         });
 
