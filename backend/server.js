@@ -5,8 +5,9 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 
 const productRoutes = require('./routes/productRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 const authRoutes = require('./routes/authRoutes');
-const adminRoutes = require('./routes/adminRoutes');   // 👈 අලුතින් add කරපු එක
+const adminRoutes = require('./routes/adminRoutes');
 
 // Initialize Express
 const app = express();
@@ -17,11 +18,12 @@ app.use(express.json());
 
 // Product routes
 app.use('/api/products', productRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Authentication routes
 app.use('/api/auth', authRoutes);
 
-// Admin routes                                            👈 අලුතින් add කරපු එක
+// Admin routes
 app.use('/api/admin', adminRoutes);
 
 // Test route
