@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useOutletContext } from 'react-router-dom';
 import categories from '../categories';
 
 const defaultProductData = {
@@ -12,17 +12,10 @@ const defaultProductData = {
   seller: '64f8b5d3a9d123456789abcd',
 };
 
-const initialUsers = [
-  { id: 1, name: 'Alice Johnson', email: 'alice@email.com', role: 'Customer', status: 'Active' },
-  { id: 2, name: 'Daniel Smith', email: 'daniel@email.com', role: 'Seller', status: 'Pending' },
-  { id: 3, name: 'Maya Perera', email: 'maya@email.com', role: 'Customer', status: 'Active' },
-  { id: 4, name: 'Nimal Fernando', email: 'nimal@email.com', role: 'Seller', status: 'Approved' },
-];
-
 const initialCategories = categories.filter((category) => category.value !== 'All');
 
 function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('approvals');
+  const { activeTab, setActiveTab } = useOutletContext();
   const [pendingSellers, setPendingSellers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -30,7 +23,9 @@ function AdminDashboard() {
   const [productData, setProductData] = useState(defaultProductData);
   const [productMessage, setProductMessage] = useState('');
   const [productError, setProductError] = useState('');
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [usersError, setUsersError] = useState('');
   const [categoryInput, setCategoryInput] = useState('');
   const [categoryList, setCategoryList] = useState(initialCategories);
 
@@ -54,9 +49,53 @@ function AdminDashboard() {
     }
   };
 
+  const fetchUsers = async () => {
+    setUsersLoading(true);
+    setUsersError('');
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/users', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const responseText = await response.text();
+      let data;
+      try {
+        data = responseText ? JSON.parse(responseText) : {};
+      } catch (parseError) {
+        console.error('Users API returned a non-JSON response:', {
+          status: response.status,
+          contentType: response.headers.get('content-type'),
+          body: responseText.slice(0, 200),
+          parseError,
+        });
+        throw new Error(
+          `Users API returned an unexpected response (${response.status}). Restart the backend on port 5000.`
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch users');
+      }
+
+      setUsers(data.map((user) => ({
+        ...user,
+        status: user.status === 'approved' ? 'Active' : user.status,
+      })));
+    } catch (fetchError) {
+      console.error('Error fetching users:', fetchError);
+      setUsersError(fetchError.message || 'Unable to load users');
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === 'approvals') {
       fetchPendingSellers();
+    }
+    if (activeTab === 'users') {
+      fetchUsers();
     }
   }, [activeTab]);
 
@@ -139,7 +178,7 @@ function AdminDashboard() {
   const handleUserStatusToggle = (userId) => {
     setUsers((currentUsers) =>
       currentUsers.map((user) =>
-        user.id === userId
+        (user._id || user.id) === userId
           ? {
               ...user,
               status: user.status === 'Active' ? 'Suspended' : 'Active',
@@ -174,31 +213,6 @@ function AdminDashboard() {
   };
 
   return (
-    <div style={styles.dashboardContainer}>
-      <aside style={styles.sidebar}>
-        <h2 style={styles.brand}>ADMINISTRATOR</h2>
-        <nav style={styles.nav}>
-          <button style={activeTab === 'approvals' ? styles.activeNavItem : styles.navItem} onClick={() => setActiveTab('approvals')}>
-            🏪 Approve Sellers
-          </button>
-          <button style={activeTab === 'users' ? styles.activeNavItem : styles.navItem} onClick={() => setActiveTab('users')}>
-            👥 Manage Users
-          </button>
-          <button style={activeTab === 'categories' ? styles.activeNavItem : styles.navItem} onClick={() => setActiveTab('categories')}>
-            📁 Manage Categories
-          </button>
-          <button style={activeTab === 'products' ? styles.activeNavItem : styles.navItem} onClick={() => setActiveTab('products')}>
-            🛍️ Add New Product
-          </button>
-          <button style={activeTab === 'reports' ? styles.activeNavItem : styles.navItem} onClick={() => setActiveTab('reports')}>
-            📈 System Reports
-          </button>
-          <Link to="/" style={styles.storeLink}>
-            🛒 View Store
-          </Link>
-        </nav>
-      </aside>
-
       <main style={styles.mainContent}>
         {activeTab === 'approvals' && (
           <div>
@@ -225,6 +239,9 @@ function AdminDashboard() {
                   <tr>
                     <th style={styles.th}>Name</th>
                     <th style={styles.th}>Email</th>
+                    <th style={styles.th}>Business</th>
+                    <th style={styles.th}>Contact</th>
+                    <th style={styles.th}>Store Address</th>
                     <th style={styles.th}>Date Applied</th>
                     <th style={styles.th}>Action</th>
                   </tr>
@@ -234,6 +251,9 @@ function AdminDashboard() {
                     <tr key={seller._id} style={styles.tr}>
                       <td style={styles.td}>{seller.name}</td>
                       <td style={styles.td}>{seller.email}</td>
+                      <td style={styles.td}>{seller.businessName}</td>
+                      <td style={styles.td}>{seller.contactNumber}</td>
+                      <td style={styles.td}>{seller.storeAddress}</td>
                       <td style={styles.td}>{new Date(seller.createdAt).toLocaleDateString()}</td>
                       <td style={styles.td}>
                         <button style={styles.approveBtn} onClick={() => handleApprove(seller._id, seller.name)}>
@@ -254,9 +274,14 @@ function AdminDashboard() {
         {activeTab === 'users' && (
           <div>
             <h2>Manage Users</h2>
+            {usersLoading && <p style={styles.message}>Loading users...</p>}
+            {usersError && <p style={styles.error}>{usersError}</p>}
+            {!usersLoading && !usersError && users.length === 0 && (
+              <p style={styles.message}>No users found.</p>
+            )}
             <div style={styles.cardGrid}>
               {users.map((user) => (
-                <div key={user.id} style={styles.userCard}>
+                <div key={user._id || user.id} style={styles.userCard}>
                   <div>
                     <h3 style={styles.userName}>{user.name}</h3>
                     <p style={styles.userMeta}>{user.email}</p>
@@ -264,7 +289,7 @@ function AdminDashboard() {
                   </div>
                   <div style={styles.userMetaRow}>
                     <span style={user.status === 'Active' ? styles.statusActive : styles.statusInactive}>{user.status}</span>
-                    <button style={styles.secondaryBtn} onClick={() => handleUserStatusToggle(user.id)}>
+                    <button style={styles.secondaryBtn} onClick={() => handleUserStatusToggle(user._id || user.id)}>
                       {user.status === 'Active' ? 'Suspend' : 'Activate'}
                     </button>
                   </div>
@@ -380,72 +405,10 @@ function AdminDashboard() {
           </div>
         )}
       </main>
-    </div>
   );
 }
 
 const styles = {
-  dashboardContainer: {
-    display: 'flex',
-    minHeight: '100vh',
-    backgroundColor: '#0a0a0a',
-    color: '#fff',
-    fontFamily: '"Helvetica Neue", Arial, sans-serif',
-  },
-  sidebar: {
-    width: '250px',
-    backgroundColor: '#111',
-    borderRight: '1px solid #333',
-    padding: '20px',
-  },
-  brand: {
-    fontSize: '20px',
-    fontWeight: '900',
-    letterSpacing: '1px',
-    marginBottom: '40px',
-    color: '#3498db',
-    borderBottom: '1px solid #333',
-    paddingBottom: '20px',
-  },
-  nav: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-  },
-  navItem: {
-    backgroundColor: 'transparent',
-    color: '#888',
-    border: 'none',
-    padding: '15px',
-    textAlign: 'left',
-    fontSize: '16px',
-    cursor: 'pointer',
-    borderRadius: '4px',
-    transition: 'background-color 0.2s',
-  },
-  activeNavItem: {
-    backgroundColor: '#222',
-    color: '#fff',
-    border: 'none',
-    padding: '15px',
-    textAlign: 'left',
-    fontSize: '16px',
-    cursor: 'pointer',
-    borderRadius: '4px',
-    fontWeight: 'bold',
-  },
-  storeLink: {
-    display: 'block',
-    backgroundColor: '#3498db',
-    color: '#fff',
-    padding: '15px',
-    textAlign: 'center',
-    fontSize: '16px',
-    fontWeight: 'bold',
-    textDecoration: 'none',
-    borderRadius: '4px',
-    marginTop: '20px',
-  },
   mainContent: {
     flex: 1,
     padding: '40px',

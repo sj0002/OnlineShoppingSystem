@@ -8,6 +8,13 @@ function ProductDetails() {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const isAdmin = (() => {
+        try {
+            return JSON.parse(localStorage.getItem('user'))?.role === 'Admin';
+        } catch {
+            return false;
+        }
+    })();
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -170,12 +177,14 @@ function ProductDetails() {
                         </div>
                     )}
 
-                    <button
-                        style={styles.cartButton}
-                        onClick={handleAddToCart}
-                    >
-                        ADD TO CART
-                    </button>
+                    {!isAdmin && (
+                        <button
+                            style={styles.cartButton}
+                            onClick={handleAddToCart}
+                        >
+                            ADD TO CART
+                        </button>
+                    )}
 
                 </div>
 

@@ -1,6 +1,14 @@
 import React from 'react';
 
 function ProductCard({ name, price, description }) {
+    const isAdmin = (() => {
+        try {
+            return JSON.parse(localStorage.getItem('user'))?.role === 'Admin';
+        } catch {
+            return false;
+        }
+    })();
+
     return (
         <div style={styles.card}>
             <div style={styles.imagePlaceholder}>IMG</div>
@@ -8,7 +16,7 @@ function ProductCard({ name, price, description }) {
                 <h3 style={styles.title}>{name}</h3>
                 <p style={styles.description}>{description}</p>
                 <p style={styles.price}>Rs. {price}</p>
-                <button style={styles.button}>Add to Cart</button>
+                {!isAdmin && <button style={styles.button}>Add to Cart</button>}
             </div>
         </div>
     );

@@ -95,6 +95,7 @@ function Auth() {
                     'user',
                     JSON.stringify(data.user)
                 );
+                window.dispatchEvent(new Event('authChanged'));
 
                 setMessage('Login successful!');
 

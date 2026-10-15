@@ -8,6 +8,7 @@ const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 // Initialize Express
 const app = express();
@@ -25,6 +26,17 @@ app.use('/api/auth', authRoutes);
 
 // Admin routes
 app.use('/api/admin', adminRoutes);
+app.use('/api/users', userRoutes);
+
+// Keep API failures JSON so clients never receive Express's default HTML fallback.
+app.use('/api', (req, res) => {
+    res.status(404).json({ message: `API route not found: ${req.method} ${req.originalUrl}` });
+});
+
+app.use((error, req, res, next) => {
+    console.error('Unhandled API error:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+});
 
 // Test route
 app.get('/', (req, res) => {

@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Auth from './pages/Auth';
-import Navbar from './Navbar';
 import Home from './pages/Home';
 import SearchResults from './pages/SearchResults';
 import SellerDashboard from './pages/SellerDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import Cart from './pages/Cart';
 import ProductDetails from './pages/ProductDetails';
+import CustomerDashboard from './pages/CustomerDashboard';
+import MainLayout from './layouts/MainLayout';
+import AdminLayout from './layouts/AdminLayout';
 
 function App() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,42 +19,25 @@ function App() {
     <Router>
       <div style={styles.appContainer}>
 
-        {/* The Navbar stays outside the Routes so it always shows on top */}
-        <Navbar
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-        />
-
-        {/* The Routes determine which page content to load below the Navbar */}
         <Routes>
+          <Route element={<MainLayout
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+          />}>
+            <Route index element={<Home selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />} />
+            <Route path="search" element={<SearchResults />} />
+            <Route path="login" element={<Auth />} />
+            <Route path="profile" element={<CustomerDashboard />} />
+            <Route path="seller" element={<SellerDashboard />} />
+            <Route path="cart" element={<Cart />} />
+            <Route path="products/:id" element={<ProductDetails />} />
+          </Route>
 
-          <Route
-            path="/"
-            element={
-              <Home
-                selectedCategory={selectedCategory}
-                setSelectedCategory={setSelectedCategory}
-              />
-            }
-          />
-
-          <Route path="/search" element={<SearchResults />} />
-
-          <Route path="/login" element={<Auth />} />
-
-          <Route path="/seller" element={<SellerDashboard />} />
-
-          <Route path="/admin" element={<AdminDashboard />} />
-
-          <Route path="/cart" element={<Cart />} />
-
-          {/* US-06: View Product Details */}
-          <Route
-            path="/products/:id"
-            element={<ProductDetails />}
-          />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+          </Route>
 
         </Routes>
 
