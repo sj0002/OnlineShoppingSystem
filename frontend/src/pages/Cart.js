@@ -6,6 +6,13 @@ function Cart() {
     const [placingOrder, setPlacingOrder] = useState(false);
 const [orderMessage, setOrderMessage] = useState('');
 const [orderError, setOrderError] = useState('');
+    const isAdmin = (() => {
+        try {
+            return JSON.parse(localStorage.getItem('user'))?.role === 'Admin';
+        } catch {
+            return false;
+        }
+    })();
 
     useEffect(() => {
         loadCart();
@@ -74,6 +81,16 @@ const [orderError, setOrderError] = useState('');
     const shipping = cartItems.length > 0 ? 400 : 0;
 
     const total = subtotal + shipping;
+
+    if (isAdmin) {
+        return (
+            <main style={styles.container}>
+                <h2 style={styles.pageTitle}>Admin Preview Mode</h2>
+                <p>Purchasing is disabled while viewing the storefront as an Admin.</p>
+            </main>
+        );
+    }
+
     const handlePlaceOrder = async (event) => {
     event.preventDefault();
 

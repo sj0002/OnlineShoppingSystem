@@ -3,6 +3,13 @@ import { useNavigate } from 'react-router-dom';
 
 function ProductCard({ id, name, price, description, category, imageUrl }) {
     const navigate = useNavigate();
+    const isAdmin = (() => {
+        try {
+            return JSON.parse(localStorage.getItem('user'))?.role === 'Admin';
+        } catch {
+            return false;
+        }
+    })();
 
     const handleViewDetails = () => {
         navigate(`/products/${id}`);
@@ -68,12 +75,14 @@ function ProductCard({ id, name, price, description, category, imageUrl }) {
                     Rs. {price}
                 </p>
 
-                <button
-                    style={styles.button}
-                    onClick={addToCart}
-                >
-                    Add to Cart
-                </button>
+                {!isAdmin && (
+                    <button
+                        style={styles.button}
+                        onClick={addToCart}
+                    >
+                        Add to Cart
+                    </button>
+                )}
             </div>
         </div>
     );

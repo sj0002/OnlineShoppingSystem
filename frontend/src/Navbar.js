@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import categories from './categories';
 
@@ -10,10 +10,36 @@ function Navbar({
 }) {
     const navigate = useNavigate();
     const { pathname } = useLocation();
-    const isAuthRoute = pathname === '/login'
-        || pathname === '/register'
-        || pathname.startsWith('/admin')
-        || pathname.startsWith('/seller');
+    const readUser = () => {
+        try {
+            return JSON.parse(localStorage.getItem('user')) || null;
+        } catch {
+            return null;
+        }
+    };
+    const [currentUser, setCurrentUser] = useState(readUser);
+    const isAdminPreview = currentUser?.role === 'Admin';
+    const isShopPage = pathname === '/';
+
+    useEffect(() => {
+        const syncUser = () => setCurrentUser(readUser());
+
+        window.addEventListener('authChanged', syncUser);
+        window.addEventListener('storage', syncUser);
+
+        return () => {
+            window.removeEventListener('authChanged', syncUser);
+            window.removeEventListener('storage', syncUser);
+        };
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+        window.dispatchEvent(new Event('authChanged'));
+        navigate('/login');
+    };
 
     const handleSearch = (e) => {
         // Check if the user pressed the 'Enter' key and the search isn't empty
@@ -33,7 +59,7 @@ function Navbar({
             </div>
 
             {/* Search & Filter Section */}
-            {!isAuthRoute && (
+            {isShopPage && (
                 <div style={styles.searchContainer}>
                     <input
                         type="text"
@@ -60,15 +86,28 @@ function Navbar({
                 </div>
             )}
 
+            {isAdminPreview && <div style={styles.previewBanner}>Viewing as Admin - Purchasing Disabled</div>}
+
             {/* User Actions & Cart */}
             <div style={styles.navActions}>
-                <button style={styles.navLink} onClick={() => navigate('/login')}>Login</button>
-                <button style={styles.navLink} onClick={() => navigate('/login')}>Register</button>
+                {!currentUser && (
+                    <>
+                        <button style={styles.navLink} onClick={() => navigate('/login')}>Login</button>
+                        <button style={styles.navLink} onClick={() => navigate('/login')}>Register</button>
+                    </>
+                )}
+                {currentUser && (
+                    <button style={styles.navLink} onClick={() => navigate('/profile')}>Profile</button>
+                )}
+                {currentUser && (
+                    <button style={styles.navLink} onClick={handleLogout}>Logout</button>
+                )}
 
-                {/* THIS IS THE UPDATED CART BUTTON */}
-                <div style={styles.cartBtn} onClick={() => navigate('/cart')}>
-                    🛒 Cart (2)
-                </div>
+                {!isAdminPreview && (
+                    <div style={styles.cartBtn} onClick={() => navigate('/cart')}>
+                        🛒 Cart (2)
+                    </div>
+                )}
             </div>
         </header>
     );
@@ -114,6 +153,13 @@ const styles = {
         display: 'flex',
         alignItems: 'center',
         gap: '20px',
+    },
+    previewBanner: {
+        color: '#f0c674',
+        fontSize: '13px',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        whiteSpace: 'nowrap',
     },
     navLink: {
         backgroundColor: 'transparent',

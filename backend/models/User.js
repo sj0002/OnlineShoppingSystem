@@ -29,6 +29,27 @@ const userSchema = new mongoose.Schema(
             default: 'Customer'
         },
 
+        sellerRequestStatus: {
+            type: String,
+            enum: ['None', 'Pending', 'Approved', 'Rejected'],
+            default: 'None'
+        },
+
+        businessName: {
+            type: String,
+            trim: true
+        },
+
+        contactNumber: {
+            type: String,
+            trim: true
+        },
+
+        storeAddress: {
+            type: String,
+            trim: true
+        },
+
         // 👇 අලුතින් add කරපු එක
         status: {
             type: String,

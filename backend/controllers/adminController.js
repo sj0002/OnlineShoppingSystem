@@ -6,8 +6,8 @@ const User = require('../models/User');
 const getPendingSellers = async (req, res) => {
     try {
         const sellers = await User.find({
-            role: 'Seller',
-            status: 'pending'
+            role: 'Customer',
+            sellerRequestStatus: 'Pending'
         }).select('-password');  // password එක එවන්නේ නෑ
 
         res.status(200).json(sellers);
@@ -35,12 +35,14 @@ const approveSeller = async (req, res) => {
             });
         }
 
-        if (seller.role !== 'Seller') {
+        if (seller.role !== 'Customer' || seller.sellerRequestStatus !== 'Pending') {
             return res.status(400).json({
-                message: 'This user is not a seller'
+                message: 'This user does not have a pending seller request'
             });
         }
 
+        seller.role = 'Seller';
+        seller.sellerRequestStatus = 'Approved';
         seller.status = 'approved';
         await seller.save();
 
@@ -50,7 +52,12 @@ const approveSeller = async (req, res) => {
                 id: seller._id,
                 name: seller.name,
                 email: seller.email,
-                status: seller.status
+                businessName: seller.businessName,
+                contactNumber: seller.contactNumber,
+                storeAddress: seller.storeAddress,
+                role: seller.role,
+                status: seller.status,
+                sellerRequestStatus: seller.sellerRequestStatus
             }
         });
 
@@ -77,12 +84,13 @@ const rejectSeller = async (req, res) => {
             });
         }
 
-        if (seller.role !== 'Seller') {
+        if (seller.role !== 'Customer' || seller.sellerRequestStatus !== 'Pending') {
             return res.status(400).json({
-                message: 'This user is not a seller'
+                message: 'This user does not have a pending seller request'
             });
         }
 
+        seller.sellerRequestStatus = 'Rejected';
         seller.status = 'rejected';
         await seller.save();
 
@@ -92,7 +100,8 @@ const rejectSeller = async (req, res) => {
                 id: seller._id,
                 name: seller.name,
                 email: seller.email,
-                status: seller.status
+                status: seller.status,
+                sellerRequestStatus: seller.sellerRequestStatus
             }
         });
 

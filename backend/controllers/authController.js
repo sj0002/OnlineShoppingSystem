@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 // ============================
 const registerUser = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password } = req.body;
 
         // Check required fields
         if (!name || !email || !password) {
@@ -29,28 +29,25 @@ const registerUser = async (req, res) => {
         // 👇 Determine the status based on role
         // Seller කෙනෙක් නම් → 'pending' (admin approve කරන්න ඕන)
         // අනිත් අයට → 'approved'
-        const userRole = role || 'Customer';
-        const userStatus = userRole === 'Seller' ? 'pending' : 'approved';
-
         const user = await User.create({
             name,
             email,
             password,
-            role: userRole,
-            status: userStatus   // 👈 අලුතින් add කරපු එක
+            role: 'Customer',
+            sellerRequestStatus: 'None',
+            status: 'approved'
         });
 
         // Registration successful
         res.status(201).json({
-            message: userRole === 'Seller'
-                ? 'Seller registration submitted! Please wait for admin approval.'
-                : 'User registered successfully',
+            message: 'User registered successfully',
             user: {
                 id: user._id,
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                status: user.status   // 👈 අලුතින් add කරපු එක
+                status: user.status,
+                sellerRequestStatus: user.sellerRequestStatus
             }
         });
 
@@ -135,7 +132,8 @@ const loginUser = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                status: user.status   // 👈 අලුතින් add කරපු එක
+                status: user.status,
+                sellerRequestStatus: user.sellerRequestStatus
             }
         });
 
