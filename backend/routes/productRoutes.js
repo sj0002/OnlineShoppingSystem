@@ -12,6 +12,7 @@ const {
 } = require('../controllers/productController');
 
 const { protect, sellerOnly } = require('../middleware/authMiddleware');
+const upload = require('../middleware/uploadMiddleware');
 
 const router = express.Router();
 
@@ -25,7 +26,7 @@ router.get('/search', searchProducts);
 router.get('/seller/my-products', protect, sellerOnly, getSellerProducts);
 
 // CREATE product
-router.post('/', protect, sellerOnly, createProduct);
+router.post('/', protect, sellerOnly, upload.single('image'), createProduct);
 
 // UPDATE product
 router.put('/:id', protect, sellerOnly, updateProduct);

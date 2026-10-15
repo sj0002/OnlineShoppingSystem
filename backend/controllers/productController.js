@@ -1,4 +1,31 @@
 const Product = require('../models/Product');
+const cloudinary = require('../config/cloudinary');
+
+const uploadProductImage = (file) => new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+        { folder: 'online-shopping/products', resource_type: 'image' },
+        (error, result) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+
+            resolve(result);
+        }
+    );
+
+    uploadStream.end(file.buffer);
+});
+
+const getCategories = async (req, res) => {
+    try {
+        const categories = await Product.distinct('category');
+        return res.status(200).json(categories.filter(Boolean).sort());
+    } catch (error) {
+        console.error('Get categories error:', error);
+        return res.status(500).json({ message: 'Server error while fetching categories.' });
+    }
+};
 
 // GET ALL PRODUCTS
 const getProducts = async (req, res) => {
@@ -81,8 +108,8 @@ const createProduct = async (req, res) => {
             price,
             category,
             stockQuantity,
-            imageUrl
-        } = req.body;
+            imageUrl: existingImageUrl
+        } = req.body || {};
 
         if (
             !name?.trim() ||
@@ -96,13 +123,19 @@ const createProduct = async (req, res) => {
             });
         }
 
+        let imageUrl = existingImageUrl || '';
+        if (req.file) {
+            const uploadedImage = await uploadProductImage(req.file);
+            imageUrl = uploadedImage.secure_url;
+        }
+
         const product = await Product.create({
             name: name.trim(),
             description: description.trim(),
             price: Number(price),
             category: category.trim(),
             stockQuantity: Number(stockQuantity ?? 0),
-            imageUrl: imageUrl || '',
+            imageUrl,
             seller: req.user._id
         });
 
@@ -211,6 +244,7 @@ const deleteProduct = async (req, res) => {
 };
 
 module.exports = {
+    getCategories,
     getProducts,
     getProductById,
     searchProducts,

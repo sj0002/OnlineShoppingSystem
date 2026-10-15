@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 
 const API_URL = 'http://localhost:5000/api/products';
 
+const CATEGORIES_API_URL = 'http://localhost:5000/api/categories';
+
 const ORDERS_API_URL = 'http://localhost:5000/api/orders';
 
 function SellerDashboard() {
@@ -11,6 +13,8 @@ function SellerDashboard() {
     const [activeTab, setActiveTab] = useState('overview');
 
     const [products, setProducts] = useState([]);
+
+    const [categories, setCategories] = useState([]);
 
     const [orders, setOrders] = useState([]);
 
@@ -40,7 +44,9 @@ function SellerDashboard() {
 
         stockQuantity: '',
 
-        imageUrl: ''
+        imageUrl: '',
+
+        imageFile: null
 
     };
 
@@ -62,13 +68,15 @@ function SellerDashboard() {
 
         }
 
+        const isFormData = options.body instanceof FormData;
+
         const response = await fetch(url, {
 
             ...options,
 
             headers: {
 
-                'Content-Type': 'application/json',
+                ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
 
                 Authorization: `Bearer ${token}`,
 
@@ -152,15 +160,44 @@ function SellerDashboard() {
 
     }, [loadProducts]);
 
+    useEffect(() => {
+        const loadCategories = async () => {
+            try {
+                const response = await fetch(CATEGORIES_API_URL);
+                console.log(response);
+                const data = await response.json();
+                console.log('Categories API Data:', data);
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Unable to load categories.');
+                }
+
+                const categoryList = Array.isArray(data) ? data : data.categories;
+                if (!Array.isArray(categoryList)) {
+                    throw new Error('Categories API returned an unexpected data format.');
+                }
+
+                setCategories(categoryList
+                    .map((category) => typeof category === 'string' ? category : category.name)
+                    .filter(Boolean));
+            } catch (categoryError) {
+                console.error('Error fetching categories:', categoryError);
+                setError(categoryError.message || 'Unable to load categories.');
+            }
+        };
+
+        loadCategories();
+    }, []);
+
     const handleInputChange = (e) => {
 
-        const { name, value } = e.target;
+        const { name, value, files } = e.target;
 
         setForm((previous) => ({
 
             ...previous,
 
-            [name]: value
+            [name]: name === 'imageFile' ? files[0] : value
 
         }));
 
@@ -196,7 +233,9 @@ function SellerDashboard() {
 
             stockQuantity: product.stockQuantity ?? 0,
 
-            imageUrl: product.imageUrl || ''
+            imageUrl: product.imageUrl || '',
+
+            imageFile: null
 
         });
 
@@ -296,11 +335,23 @@ function SellerDashboard() {
 
             } else {
 
+                const formData = new FormData();
+
+                formData.append('name', payload.name);
+                formData.append('description', payload.description);
+                formData.append('price', String(payload.price));
+                formData.append('category', payload.category);
+                formData.append('stockQuantity', String(payload.stockQuantity));
+
+                if (form.imageFile) {
+                    formData.append('image', form.imageFile);
+                }
+
                 await apiRequest(API_URL, {
 
                     method: 'POST',
 
-                    body: JSON.stringify(payload)
+                    body: formData
 
                 });
 
@@ -814,7 +865,7 @@ function SellerDashboard() {
 
                             <label style={styles.label}>
 
-                                Product Name \\*
+                                Product Name *
 
                                 <input
 
@@ -834,7 +885,7 @@ function SellerDashboard() {
 
                             <label style={styles.label}>
 
-                                Description \\*
+                                Description *
 
                                 <textarea
 
@@ -858,7 +909,7 @@ function SellerDashboard() {
 
                                 <label style={styles.label}>
 
-                                    Price (Rs.) \\*
+                                    Price (Rs.) *
 
                                     <input
 
@@ -884,7 +935,7 @@ function SellerDashboard() {
 
                                 <label style={styles.label}>
 
-                                    Stock Quantity \\*
+                                    Stock Quantity *
 
                                     <input
 
@@ -912,9 +963,9 @@ function SellerDashboard() {
 
                             <label style={styles.label}>
 
-                                Category \\*
+                                Category *
 
-                                <input
+                                <select
 
                                     style={styles.input}
 
@@ -924,31 +975,31 @@ function SellerDashboard() {
 
                                     onChange={handleInputChange}
 
-                                    placeholder="e.g. Electronics"
-
                                     required
-
-                                />
+                                >
+                                    <option value="" disabled>Select a Category</option>
+                                    {categories.map((category) => (
+                                        <option key={category} value={category}>
+                                            {category}
+                                        </option>
+                                    ))}
+                                </select>
 
                             </label>
 
                             <label style={styles.label}>
 
-                                Image URL (optional)
+                                Product image (optional)
 
                                 <input
 
                                     style={styles.input}
 
-                                    type="url"
+                                    type="file"
 
-                                    name="imageUrl"
-
-                                    value={form.imageUrl}
+                                    name="imageFile"
 
                                     onChange={handleInputChange}
-
-                                    placeholder="https\\://example.com/image.jpg"
 
                                 />
 
