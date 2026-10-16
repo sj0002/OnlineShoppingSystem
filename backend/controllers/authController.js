@@ -8,17 +8,18 @@ const jwt = require('jsonwebtoken');
 // ============================
 const registerUser = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password } = req.body || {};
+        const normalizedEmail = email?.trim().toLowerCase();
 
         // Check required fields
-        if (!name || !email || !password) {
+        if (!name?.trim() || !normalizedEmail || !password) {
             return res.status(400).json({
                 message: 'Name, email and password are required'
             });
         }
 
         // Check if user already exists
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ email: normalizedEmail });
 
         if (existingUser) {
             return res.status(400).json({
@@ -30,13 +31,15 @@ const registerUser = async (req, res) => {
         // Seller කෙනෙක් නම් → 'pending' (admin approve කරන්න ඕන)
         // අනිත් අයට → 'approved'
         const user = await User.create({
-            name,
-            email,
+            name: name.trim(),
+            email: normalizedEmail,
             password,
             role: 'Customer',
             sellerRequestStatus: 'None',
             status: 'approved'
         });
+
+        console.log(`User registered: ${user._id} (${user.email}) in database ${User.db.name}`);
 
         // Registration successful
         res.status(201).json({
