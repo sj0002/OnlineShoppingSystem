@@ -39,7 +39,7 @@ function Home({ selectedCategory, setSelectedCategory }) {
 		: `${selectedCategory} Products`;
 
 	return (
-		<main style={styles.container}>
+		<main className="store-page" style={styles.container}>
 			<h1 style={styles.title}>Discover Our Products</h1>
 
 			<section style={styles.categorySection}>
@@ -102,39 +102,43 @@ function Home({ selectedCategory, setSelectedCategory }) {
 
 const styles = {
 	container: {
-		maxWidth: '1400px',
+		maxWidth: '1320px',
 		margin: '0 auto',
-		padding: '40px 20px',
-		color: '#fff',
+		padding: '64px 24px',
+		color: '#f3f7f8',
 		minHeight: '80vh',
 	},
 	title: {
-		fontSize: '36px',
-		fontWeight: 'normal',
-		margin: '0 0 40px 0',
+		fontSize: 'clamp(34px, 5vw, 64px)',
+		lineHeight: 1,
+		fontWeight: '800',
+		letterSpacing: '-2px',
+		margin: '0 0 48px 0',
+		maxWidth: '680px',
 	},
 	categorySection: {
-		marginBottom: '50px',
+		marginBottom: '62px',
 	},
 	sectionHeading: {
-		fontSize: '28px',
-		fontWeight: 'normal',
-		margin: '0 0 25px 0',
+		fontSize: '22px',
+		fontWeight: '700',
+		margin: '0 0 20px 0',
+		color: '#dce8eb',
 	},
 	categoryGrid: {
 		display: 'grid',
-		gridTemplateColumns: 'repeat(5, minmax(0, 1fr))',
-		gap: '15px',
+		gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+		gap: '12px',
 	},
 	categoryCard: {
-		backgroundColor: '#111111',
-		border: '2px solid #333333',
-		borderRadius: '8px',
-		color: '#fff',
+		backgroundColor: '#111a20',
+		border: '1px solid #293640',
+		borderRadius: '12px',
+		color: '#c8d7dc',
 		cursor: 'pointer',
 		fontSize: '16px',
-		minHeight: '90px',
-		padding: '20px 12px',
+		minHeight: '76px',
+		padding: '18px 12px',
 	},
 	productGrid: {
 		display: 'flex',
@@ -142,7 +146,7 @@ const styles = {
 		flexWrap: 'wrap',
 	},
 	message: {
-		color: '#aaa',
+		color: '#91a2ad',
 		fontSize: '18px',
 	},
 	error: {

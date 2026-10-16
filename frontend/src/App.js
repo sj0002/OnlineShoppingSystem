@@ -10,6 +10,7 @@ import ProductDetails from './pages/ProductDetails';
 import CustomerDashboard from './pages/CustomerDashboard';
 import MainLayout from './layouts/MainLayout';
 import AdminLayout from './layouts/AdminLayout';
+import './App.css';
 
 function App() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,7 +18,7 @@ function App() {
 
   return (
     <Router>
-      <div style={styles.appContainer}>
+      <div className="app-shell" style={styles.appContainer}>
 
         <Routes>
           <Route element={<MainLayout
@@ -49,7 +50,7 @@ function App() {
 const styles = {
   appContainer: {
     fontFamily: '"Helvetica Neue", Arial, sans-serif',
-    backgroundColor: '#0a0a0a',
+    backgroundColor: 'transparent',
     color: '#ffffff',
     minHeight: '100vh',
   }

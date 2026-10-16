@@ -1,10 +1,53 @@
+:root {
+  --ink: #07090b;
+  --surface: #0f1418;
+  --surface-raised: #151c22;
+  --surface-soft: #1b242b;
+  --line: #293640;
+  --text: #f3f7f8;
+  --muted: #91a2ad;
+  --accent: #35d0bd;
+  --accent-strong: #0aa694;
+  --accent-blue: #64b5ff;
+  --danger: #ff7777;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--ink);
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  background: var(--ink);
+  color: var(--text);
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--ink);
 }
 
 code {

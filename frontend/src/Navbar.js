@@ -76,8 +76,9 @@ function Navbar({
     };
 
     return (
-        <header style={styles.navbar}>
+        <header className="store-navbar" style={styles.navbar}>
             <div
+            className="brand-mark"
                 style={styles.logo}
                 onClick={() => navigate('/')} // Clicking the logo goes back home
             >
@@ -86,7 +87,7 @@ function Navbar({
 
             {/* Search & Filter Section */}
             {isShopPage && (
-                <div style={styles.searchContainer}>
+                <div className="store-search" style={styles.searchContainer}>
                     <input
                         type="text"
                         placeholder="Search products by name... (Press Enter)"
@@ -115,22 +116,22 @@ function Navbar({
             {isAdminPreview && <div style={styles.previewBanner}>Viewing as Admin - Purchasing Disabled</div>}
 
             {/* User Actions & Cart */}
-            <div style={styles.navActions}>
+            <div className="nav-actions" style={styles.navActions}>
                 {!currentUser && (
                     <>
-                        <button style={styles.navLink} onClick={() => navigate('/login')}>Login</button>
-                        <button style={styles.navLink} onClick={() => navigate('/login')}>Register</button>
+                        <button className="nav-link" style={styles.navLink} onClick={() => navigate('/login')}>Login</button>
+                        <button className="nav-link" style={styles.navLink} onClick={() => navigate('/login')}>Register</button>
                     </>
                 )}
                 {currentUser && (
-                    <button style={styles.navLink} onClick={() => navigate('/profile')}>Profile</button>
+                    <button className="nav-link" style={styles.navLink} onClick={() => navigate('/profile')}>Profile</button>
                 )}
                 {currentUser && (
-                    <button style={styles.navLink} onClick={handleLogout}>Logout</button>
+                    <button className="nav-link" style={styles.navLink} onClick={handleLogout}>Logout</button>
                 )}
 
                 {!isAdminPreview && !hideCart && (
-                    <div style={styles.cartBtn} onClick={() => navigate('/cart')}>
+                    <div className="cart-button" style={styles.cartBtn} onClick={() => navigate('/cart')}>
                         🛒 Cart ({cartQuantity})
                     </div>
                 )}
@@ -145,14 +146,14 @@ const styles = {
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: '20px 40px',
-        backgroundColor: '#111111',
-        borderBottom: '1px solid #333',
+        backgroundColor: 'rgba(7, 9, 11, 0.84)',
+        borderBottom: '1px solid #293640',
     },
     logo: {
         fontSize: '24px',
         fontWeight: '900',
         letterSpacing: '2px',
-        color: '#ffffff',
+        color: '#f3f7f8',
         cursor: 'pointer',
     },
     searchContainer: {
@@ -161,17 +162,17 @@ const styles = {
     },
     searchInput: {
         padding: '10px 15px',
-        backgroundColor: '#222',
-        border: '1px solid #444',
-        color: '#fff',
+        backgroundColor: '#151c22',
+        border: '1px solid #293640',
+        color: '#f3f7f8',
         borderRadius: '4px',
         width: '300px',
     },
     filterSelect: {
         padding: '10px',
-        backgroundColor: '#222',
-        border: '1px solid #444',
-        color: '#fff',
+        backgroundColor: '#151c22',
+        border: '1px solid #293640',
+        color: '#f3f7f8',
         borderRadius: '4px',
         cursor: 'pointer',
     },
@@ -190,7 +191,7 @@ const styles = {
     navLink: {
         backgroundColor: 'transparent',
         border: 'none',
-        color: '#aaaaaa',
+        color: '#91a2ad',
         fontSize: '16px',
         cursor: 'pointer',
         transition: 'color 0.2s',
@@ -199,9 +200,9 @@ const styles = {
         cursor: 'pointer',
         fontWeight: 'bold',
         color: '#ffffff',
-        backgroundColor: '#333333',
+        backgroundColor: '#1b242b',
         padding: '10px 15px',
-        borderRadius: '4px',
+        borderRadius: '9px',
     }
 };
 

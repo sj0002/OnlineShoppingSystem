@@ -45,6 +45,7 @@ function ProductCard({ id, name, price, description, category, imageUrl }) {
 
     return (
         <div
+            className="product-card"
             style={styles.card}
             onClick={handleViewDetails}
         >
@@ -90,9 +91,9 @@ function ProductCard({ id, name, price, description, category, imageUrl }) {
 
 const styles = {
     card: {
-        backgroundColor: '#111111',
-        border: '1px solid #222',
-        borderRadius: '8px',
+        backgroundColor: '#151d23',
+        border: '1px solid #293640',
+        borderRadius: '14px',
         width: '270px',
         overflow: 'hidden',
         transition: 'transform 0.2s',
@@ -102,7 +103,7 @@ const styles = {
     imageContainer: {
         width: '100%',
         height: '200px',
-        backgroundColor: '#1a1a1a',
+        backgroundColor: '#0c1115',
     },
 
     productImage: {
@@ -118,24 +119,24 @@ const styles = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        color: '#333',
+        color: '#49616d',
         fontWeight: 'bold',
         fontSize: '24px',
     },
 
     info: {
-        padding: '20px',
+        padding: '22px',
     },
 
     title: {
         margin: '0 0 10px 0',
         fontSize: '18px',
-        color: '#fff',
+        color: '#f3f7f8',
     },
 
     description: {
         fontSize: '13px',
-        color: '#888',
+        color: '#91a2ad',
         marginBottom: '15px',
         height: '40px',
     },
@@ -143,16 +144,16 @@ const styles = {
     price: {
         fontWeight: 'bold',
         fontSize: '18px',
-        color: '#fff',
-        marginBottom: '15px',
+        color: '#64b5ff',
+        marginBottom: '18px',
     },
 
     button: {
-        backgroundColor: '#fff',
-        color: '#000',
-        border: 'none',
+        backgroundColor: '#35d0bd',
+        color: '#071011',
+        border: '1px solid #5ce5d5',
         padding: '12px',
-        borderRadius: '4px',
+        borderRadius: '8px',
         cursor: 'pointer',
         width: '100%',
         fontWeight: 'bold',

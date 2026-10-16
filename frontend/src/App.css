@@ -1,5 +1,121 @@
-.App {
-  text-align: center;
+.app-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(53, 208, 189, 0.09), transparent 30%),
+    radial-gradient(circle at 92% 18%, rgba(100, 181, 255, 0.07), transparent 26%),
+    var(--ink);
+}
+
+.store-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(18px);
+}
+
+.brand-mark {
+  letter-spacing: 0.12em !important;
+  text-shadow: 0 0 22px rgba(53, 208, 189, 0.28);
+}
+
+.store-search {
+  flex: 1;
+  max-width: 620px;
+}
+
+.store-search input,
+.store-search select {
+  background: rgba(21, 28, 34, 0.92) !important;
+  border-color: var(--line) !important;
+  border-radius: 9px !important;
+}
+
+.store-search input:focus,
+.store-search select:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(53, 208, 189, 0.12);
+}
+
+.nav-actions {
+  gap: 8px !important;
+}
+
+.nav-link {
+  border-radius: 8px !important;
+  padding: 9px 12px !important;
+}
+
+.nav-link:hover {
+  background: var(--surface-soft) !important;
+  color: var(--text) !important;
+}
+
+.cart-button {
+  border: 1px solid rgba(53, 208, 189, 0.4) !important;
+  background: rgba(53, 208, 189, 0.12) !important;
+  border-radius: 9px !important;
+  color: var(--accent) !important;
+}
+
+.cart-button:hover {
+  background: var(--accent) !important;
+  color: var(--ink) !important;
+}
+
+.store-page {
+  animation: page-enter 420ms ease-out both;
+}
+
+.product-card {
+  border-color: var(--line) !important;
+  background: linear-gradient(145deg, #151d23, #0e1317) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.2);
+}
+
+.product-card:hover {
+  border-color: rgba(53, 208, 189, 0.55) !important;
+  transform: translateY(-6px);
+  box-shadow: 0 22px 45px rgba(0, 0, 0, 0.35), 0 0 30px rgba(53, 208, 189, 0.08);
+}
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 800px) {
+  .store-navbar {
+    align-items: stretch !important;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 16px 18px !important;
+  }
+
+  .store-search {
+    order: 3;
+    flex-basis: 100%;
+    max-width: none;
+  }
+
+  .admin-layout {
+    flex-direction: column !important;
+  }
+
+  .admin-layout aside {
+    width: 100% !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .admin-layout nav {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-layout header {
+    padding: 0 20px !important;
+  }
 }
 
 .App-logo {
