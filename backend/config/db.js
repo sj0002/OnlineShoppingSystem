@@ -1,5 +1,8 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+require('dotenv').config({
+    path: path.join(__dirname, '..', '.env'),
+    override: true
+});
 
 const mongoose = require('mongoose');
 
@@ -8,6 +11,7 @@ const connectDB = async () => {
         // This connects to the MONGO_URI you just put in your .env file
         const conn = await mongoose.connect(process.env.MONGO_URI);
         console.log(`MongoDB connection established successfully: ${conn.connection.host}`);
+        return conn;
     } catch (error) {
         console.error('MongoDB connection failed:', error.message);
         process.exit(1); // Stops the server if the database fails to connect

@@ -1,5 +1,8 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '.env') });
+require('dotenv').config({
+    path: path.join(__dirname, '.env'),
+    override: true
+});
 
 const express = require('express');
 const cors = require('cors');
@@ -46,12 +49,19 @@ app.get('/', (req, res) => {
     res.send('Online Shopping System API is running...');
 });
 
-// Connect to MongoDB
-connectDB();
-
-// Start server
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+const startServer = async () => {
+    try {
+        await connectDB();
+
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error('Server startup failed:', error.message);
+        process.exit(1);
+    }
+};
+
+startServer();
