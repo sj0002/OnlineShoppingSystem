@@ -18,8 +18,10 @@ function Navbar({
         }
     };
     const [currentUser, setCurrentUser] = useState(readUser);
+    const [cartQuantity, setCartQuantity] = useState(0);
     const isAdminPreview = currentUser?.role === 'Admin';
     const isShopPage = pathname === '/';
+    const hideCart = pathname.includes('/seller') || pathname.includes('/dashboard');
 
     useEffect(() => {
         const syncUser = () => setCurrentUser(readUser());
@@ -30,6 +32,30 @@ function Navbar({
         return () => {
             window.removeEventListener('authChanged', syncUser);
             window.removeEventListener('storage', syncUser);
+        };
+    }, []);
+
+    useEffect(() => {
+        const readCartQuantity = () => {
+            try {
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                const quantity = Array.isArray(cart)
+                    ? cart.reduce((total, item) => total + Number(item.quantity || 0), 0)
+                    : 0;
+
+                setCartQuantity(quantity);
+            } catch {
+                setCartQuantity(0);
+            }
+        };
+
+        readCartQuantity();
+        window.addEventListener('cartUpdated', readCartQuantity);
+        window.addEventListener('storage', readCartQuantity);
+
+        return () => {
+            window.removeEventListener('cartUpdated', readCartQuantity);
+            window.removeEventListener('storage', readCartQuantity);
         };
     }, []);
 
@@ -103,9 +129,9 @@ function Navbar({
                     <button style={styles.navLink} onClick={handleLogout}>Logout</button>
                 )}
 
-                {!isAdminPreview && (
+                {!isAdminPreview && !hideCart && (
                     <div style={styles.cartBtn} onClick={() => navigate('/cart')}>
-                        🛒 Cart (2)
+                        🛒 Cart ({cartQuantity})
                     </div>
                 )}
             </div>

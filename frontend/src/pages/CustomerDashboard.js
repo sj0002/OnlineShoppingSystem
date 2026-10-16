@@ -12,6 +12,23 @@ function CustomerDashboard() {
             return null;
         }
     });
+    const [isEditing, setIsEditing] = useState(false);
+    const [editForm, setEditForm] = useState(() => {
+        try {
+            const savedUser = JSON.parse(localStorage.getItem('user')) || {};
+            return { name: savedUser.name || '', email: savedUser.email || '' };
+        } catch {
+            return { name: '', email: '' };
+        }
+    });
+    const [avatar, setAvatar] = useState(() => {
+        try {
+            const savedUser = JSON.parse(localStorage.getItem('user')) || {};
+            return savedUser.profileImage || savedUser.avatar || '';
+        } catch {
+            return '';
+        }
+    });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showSellerForm, setShowSellerForm] = useState(false);
@@ -70,6 +87,31 @@ function CustomerDashboard() {
         }
     };
 
+    const handleProfileSave = (event) => {
+        event.preventDefault();
+        const updatedUser = {
+            ...user,
+            name: editForm.name.trim(),
+            email: editForm.email.trim(),
+            profileImage: avatar,
+        };
+
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        setIsEditing(false);
+    };
+
+    const handleAvatarChange = (event) => {
+        const file = event.target.files?.[0];
+        if (!file) {
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => setAvatar(reader.result);
+        reader.readAsDataURL(file);
+    };
+
     if (!user) {
         return <main style={styles.container}><p>Please log in to view your profile.</p></main>;
     }
@@ -82,18 +124,95 @@ function CustomerDashboard() {
             : 'Customer Profile';
     const dashboardPath = user.role === 'Admin' ? '/admin' : '/seller';
     const dashboardLabel = user.role === 'Admin' ? 'Admin Dashboard' : 'Seller Dashboard';
+    const initials = user.name
+        .split(' ')
+        .filter(Boolean)
+        .map((part) => part[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase();
 
     return (
         <main style={styles.container}>
             <section style={styles.card}>
-                <h1 style={styles.title}>{profileTitle}</h1>
-                <p style={styles.detail}><strong>{user.name}</strong></p>
-                <p style={styles.detail}>{user.email}</p>
+                <div style={styles.cover} />
+                <div style={styles.profileHeader}>
+                    <div style={styles.avatarWrapper}>
+                        {avatar ? (
+                            <img src={avatar} alt={`${user.name} profile`} style={styles.avatarImage} />
+                        ) : (
+                            <div style={styles.avatarFallback}>{initials || '?'}</div>
+                        )}
+                        <label htmlFor="avatar-upload" style={styles.avatarEdit} title="Upload profile image">
+                            ✎
+                        </label>
+                        <input id="avatar-upload" type="file" accept="image/*" onChange={handleAvatarChange} style={styles.hiddenInput} />
+                    </div>
+                    <div style={styles.identity}>
+                        <div style={styles.nameRow}>
+                            <h1 style={styles.title}>{profileTitle}</h1>
+                            <span style={{ ...styles.roleBadge, ...(roleStyles[user.role] || roleStyles.Customer) }}>
+                                {user.role}
+                            </span>
+                        </div>
+                        <p style={styles.subtitle}>Manage your account and preferences</p>
+                    </div>
+                </div>
+
+                <div style={styles.divider} />
+
+                {isEditing ? (
+                    <form style={styles.profileForm} onSubmit={handleProfileSave}>
+                        <label style={styles.fieldLabel}>
+                            Full name
+                            <input
+                                required
+                                style={styles.input}
+                                value={editForm.name}
+                                onChange={(event) => setEditForm({ ...editForm, name: event.target.value })}
+                            />
+                        </label>
+                        <label style={styles.fieldLabel}>
+                            Email address
+                            <input
+                                required
+                                type="email"
+                                style={styles.input}
+                                value={editForm.email}
+                                onChange={(event) => setEditForm({ ...editForm, email: event.target.value })}
+                            />
+                        </label>
+                        <div style={styles.actionRow}>
+                            <button type="submit" style={styles.primaryButton}>Save Changes</button>
+                            <button type="button" style={styles.secondaryButton} onClick={() => setIsEditing(false)}>Cancel</button>
+                        </div>
+                    </form>
+                ) : (
+                    <div style={styles.detailsGrid}>
+                        <div>
+                            <span style={styles.detailLabel}>Full name</span>
+                            <p style={styles.detailValue}>{user.name}</p>
+                        </div>
+                        <div>
+                            <span style={styles.detailLabel}>Email address</span>
+                            <p style={styles.detailValue}>{user.email}</p>
+                        </div>
+                    </div>
+                )}
+
+                {!isEditing && (
+                    <button type="button" style={styles.secondaryButton} onClick={() => {
+                        setEditForm({ name: user.name, email: user.email });
+                        setIsEditing(true);
+                    }}>
+                        Edit Profile
+                    </button>
+                )}
 
                 {(user.role === 'Admin' || user.role === 'Seller') && (
                     <button
                         type="button"
-                        style={styles.button}
+                        style={styles.primaryButton}
                         onClick={() => navigate(dashboardPath)}
                     >
                         {dashboardLabel}
@@ -101,37 +220,37 @@ function CustomerDashboard() {
                 )}
 
                 {user.role === 'Customer' && requestStatus === 'None' && !showSellerForm && (
-                    <button type="button" style={styles.button} onClick={() => setShowSellerForm(true)}>
+                    <button type="button" style={styles.primaryButton} onClick={() => setShowSellerForm(true)}>
                         Become a Seller
                     </button>
                 )}
                 {user.role === 'Customer' && (requestStatus === 'None' || requestStatus === 'Rejected') && showSellerForm && (
-                    <form style={styles.form} onSubmit={handleSellerRequest}>
+                    <form style={styles.sellerForm} onSubmit={handleSellerRequest}>
                         <input
                             required
-                            style={styles.input}
+                            style={styles.formInput}
                             placeholder="Business name"
                             value={sellerDetails.businessName}
                             onChange={(event) => setSellerDetails({ ...sellerDetails, businessName: event.target.value })}
                         />
                         <input
                             required
-                            style={styles.input}
+                            style={styles.formInput}
                             placeholder="Contact number"
                             value={sellerDetails.contactNumber}
                             onChange={(event) => setSellerDetails({ ...sellerDetails, contactNumber: event.target.value })}
                         />
                         <textarea
                             required
-                            style={styles.input}
+                            style={styles.formInput}
                             placeholder="Store address"
                             value={sellerDetails.storeAddress}
                             onChange={(event) => setSellerDetails({ ...sellerDetails, storeAddress: event.target.value })}
                         />
-                        <button type="submit" style={styles.button} disabled={loading}>
+                        <button type="submit" style={styles.primaryButton} disabled={loading}>
                             {loading ? 'Submitting...' : 'Submit Seller Request'}
                         </button>
-                        <button type="button" style={styles.cancelButton} onClick={() => setShowSellerForm(false)}>
+                        <button type="button" style={styles.secondaryButton} onClick={() => setShowSellerForm(false)}>
                             Cancel
                         </button>
                     </form>
@@ -143,7 +262,7 @@ function CustomerDashboard() {
                     <>
                         <p style={styles.rejected}>Your previous seller request was rejected.</p>
                         {!showSellerForm && (
-                            <button type="button" style={styles.button} onClick={() => setShowSellerForm(true)}>
+                            <button type="button" style={styles.primaryButton} onClick={() => setShowSellerForm(true)}>
                                 Request Seller Access Again
                             </button>
                         )}
@@ -156,15 +275,39 @@ function CustomerDashboard() {
     );
 }
 
+const roleStyles = {
+    Admin: { backgroundColor: '#173b49', color: '#7dd3fc' },
+    Seller: { backgroundColor: '#193b2d', color: '#86efac' },
+    Customer: { backgroundColor: '#382d18', color: '#fcd34d' },
+};
+
 const styles = {
-    container: { maxWidth: '900px', margin: '0 auto', padding: '48px 20px', minHeight: '80vh' },
-    card: { backgroundColor: '#111', border: '1px solid #333', borderRadius: '8px', padding: '32px' },
-    title: { marginTop: 0, fontSize: '30px' },
-    detail: { color: '#bbb', fontSize: '17px' },
-    button: { backgroundColor: '#3498db', border: 0, borderRadius: '4px', color: '#fff', cursor: 'pointer', padding: '12px 18px', fontSize: '16px' },
-    cancelButton: { backgroundColor: 'transparent', border: '1px solid #555', borderRadius: '4px', color: '#bbb', cursor: 'pointer', padding: '12px 18px', fontSize: '16px' },
-    form: { display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px', maxWidth: '520px' },
-    input: { backgroundColor: '#222', border: '1px solid #444', borderRadius: '4px', color: '#fff', fontSize: '16px', padding: '12px' },
+    container: { maxWidth: '960px', margin: '0 auto', padding: '56px 20px', minHeight: '80vh' },
+    card: { position: 'relative', overflow: 'hidden', backgroundColor: '#111820', border: '1px solid #263746', borderRadius: '16px', boxShadow: '0 24px 60px rgba(0, 0, 0, 0.28)', padding: '0 40px 40px' },
+    cover: { height: '112px', margin: '0 -40px 0', background: 'linear-gradient(120deg, #123b46, #1c5a62 54%, #347b70)' },
+    profileHeader: { display: 'flex', alignItems: 'center', gap: '24px', marginTop: '-42px' },
+    avatarWrapper: { position: 'relative', width: '112px', height: '112px', flexShrink: 0 },
+    avatarImage: { width: '112px', height: '112px', objectFit: 'cover', borderRadius: '50%', border: '5px solid #111820', display: 'block' },
+    avatarFallback: { width: '112px', height: '112px', boxSizing: 'border-box', borderRadius: '50%', border: '5px solid #111820', backgroundColor: '#23636b', color: '#d9fff2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '34px', fontWeight: '800' },
+    avatarEdit: { position: 'absolute', right: '-2px', bottom: '3px', width: '30px', height: '30px', borderRadius: '50%', backgroundColor: '#f0c674', color: '#172127', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '18px', fontWeight: 'bold', border: '3px solid #111820' },
+    hiddenInput: { display: 'none' },
+    identity: { minWidth: 0, paddingTop: '32px' },
+    nameRow: { display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px' },
+    title: { margin: 0, color: '#f5f7f8', fontSize: '30px', letterSpacing: '-0.5px' },
+    roleBadge: { borderRadius: '999px', padding: '6px 12px', fontSize: '12px', fontWeight: '800', letterSpacing: '0.8px', textTransform: 'uppercase' },
+    subtitle: { color: '#8da1ad', margin: '9px 0 0', fontSize: '15px' },
+    divider: { height: '1px', backgroundColor: '#263746', margin: '30px 0' },
+    detailsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '24px', marginBottom: '28px' },
+    detailLabel: { color: '#78909c', display: 'block', fontSize: '12px', fontWeight: '800', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' },
+    detailValue: { color: '#edf4f5', margin: 0, fontSize: '17px', overflowWrap: 'anywhere' },
+    profileForm: { display: 'grid', gap: '16px', maxWidth: '580px', marginBottom: '28px' },
+    fieldLabel: { color: '#9bb0b9', display: 'grid', gap: '8px', fontSize: '13px', fontWeight: '700' },
+    input: { backgroundColor: '#18232c', border: '1px solid #39505e', borderRadius: '8px', color: '#fff', fontSize: '16px', padding: '12px 14px', width: '100%', boxSizing: 'border-box' },
+    formInput: { backgroundColor: '#18232c', border: '1px solid #39505e', borderRadius: '8px', color: '#fff', fontSize: '16px', padding: '12px 14px', width: '100%', boxSizing: 'border-box' },
+    actionRow: { display: 'flex', flexWrap: 'wrap', gap: '10px' },
+    primaryButton: { backgroundColor: '#2f8f83', border: '1px solid #51b5a5', borderRadius: '8px', color: '#fff', cursor: 'pointer', padding: '12px 18px', fontSize: '14px', fontWeight: '800', margin: '0 10px 10px 0' },
+    secondaryButton: { backgroundColor: 'transparent', border: '1px solid #526773', borderRadius: '8px', color: '#c5d3d8', cursor: 'pointer', padding: '12px 18px', fontSize: '14px', fontWeight: '700', margin: '0 10px 10px 0' },
+    sellerForm: { display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px', maxWidth: '520px' },
     pending: { color: '#f0c674', fontWeight: 'bold' },
     rejected: { color: '#ff6b6b' },
     approved: { color: '#6bff6b', fontWeight: 'bold' },
