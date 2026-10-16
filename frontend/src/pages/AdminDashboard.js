@@ -26,6 +26,14 @@ function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersError, setUsersError] = useState('');
+  const [reportSummary, setReportSummary] = useState({
+    totalSales: 0,
+    totalOrders: 0,
+    activeSellers: 0,
+    registeredCustomers: 0,
+  });
+  const [reportsLoading, setReportsLoading] = useState(false);
+  const [reportsError, setReportsError] = useState('');
   const [categoryInput, setCategoryInput] = useState('');
   const [categoryList, setCategoryList] = useState(initialCategories);
 
@@ -90,12 +98,39 @@ function AdminDashboard() {
     }
   };
 
+  const fetchReportSummary = async () => {
+    setReportsLoading(true);
+    setReportsError('');
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/admin/reports/summary', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch system reports');
+      }
+
+      setReportSummary(data);
+    } catch (fetchError) {
+      console.error('Error fetching reports:', fetchError);
+      setReportsError(fetchError.message || 'Unable to load system reports');
+    } finally {
+      setReportsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === 'approvals') {
       fetchPendingSellers();
     }
     if (activeTab === 'users') {
       fetchUsers();
+    }
+    if (activeTab === 'reports') {
+      fetchReportSummary();
     }
   }, [activeTab]);
 
@@ -384,22 +419,24 @@ function AdminDashboard() {
         {activeTab === 'reports' && (
           <div>
             <h2>Overall System Reports</h2>
+            {reportsLoading && <p style={styles.message}>Loading system reports...</p>}
+            {reportsError && <p style={styles.error}>{reportsError}</p>}
             <div style={styles.statsGrid}>
               <div style={styles.statCard}>
                 <h4 style={styles.statTitle}>Total Sales</h4>
-                <p style={styles.statValue}>Rs. 1,450,000</p>
+                <p style={styles.statValue}>Rs. {Number(reportSummary.totalSales).toLocaleString()}</p>
               </div>
               <div style={styles.statCard}>
                 <h4 style={styles.statTitle}>Total Orders</h4>
-                <p style={styles.statValue}>342</p>
+                <p style={styles.statValue}>{reportSummary.totalOrders.toLocaleString()}</p>
               </div>
               <div style={styles.statCard}>
                 <h4 style={styles.statTitle}>Active Sellers</h4>
-                <p style={styles.statValue}>18</p>
+                <p style={styles.statValue}>{reportSummary.activeSellers.toLocaleString()}</p>
               </div>
               <div style={styles.statCard}>
                 <h4 style={styles.statTitle}>Registered Customers</h4>
-                <p style={styles.statValue}>1,204</p>
+                <p style={styles.statValue}>{reportSummary.registeredCustomers.toLocaleString()}</p>
               </div>
             </div>
           </div>

@@ -1,4 +1,52 @@
 const User = require('../models/User');
+const Order = require('../models/Order');
+
+const getReportSummary = async (req, res) => {
+    try {
+        if (req.user.role !== 'Admin') {
+            return res.status(403).json({ message: 'Admin access required.' });
+        }
+
+        const [orderSummary, userSummary] = await Promise.all([
+            Order.aggregate([
+                { $match: { status: { $ne: 'Cancelled' } } },
+                {
+                    $group: {
+                        _id: null,
+                        totalSales: { $sum: '$totalAmount' },
+                        totalOrders: { $sum: 1 }
+                    }
+                }
+            ]),
+            User.aggregate([
+                {
+                    $group: {
+                        _id: null,
+                        activeSellers: {
+                            $sum: { $cond: [{ $eq: ['$role', 'Seller'] }, 1, 0] }
+                        },
+                        registeredCustomers: {
+                            $sum: { $cond: [{ $eq: ['$role', 'Customer'] }, 1, 0] }
+                        }
+                    }
+                }
+            ])
+        ]);
+
+        const orders = orderSummary[0] || {};
+        const users = userSummary[0] || {};
+
+        return res.status(200).json({
+            totalSales: orders.totalSales || 0,
+            totalOrders: orders.totalOrders || 0,
+            activeSellers: users.activeSellers || 0,
+            registeredCustomers: users.registeredCustomers || 0
+        });
+    } catch (error) {
+        console.error('Get report summary error:', error);
+        return res.status(500).json({ message: 'Server error while generating reports.' });
+    }
+};
 
 // ============================
 // GET PENDING SELLERS
@@ -119,6 +167,7 @@ const rejectSeller = async (req, res) => {
 // EXPORT
 // ============================
 module.exports = {
+    getReportSummary,
     getPendingSellers,
     approveSeller,
     rejectSeller
